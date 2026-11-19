@@ -7,11 +7,8 @@
 <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;800&family=Sarabun:wght@400;600;800&family=Kanit:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-:root{
---bg:#0f172a;--card:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--line:#334155;
---accent:#38bdf8;--accent2:#a78bfa;--radius:18px;--ui:1;--font:"Noto Sans Thai",sans-serif;
-}
-body{margin:0;min-height:100vh;font-family:var(--font);background:var(--bg);color:var(--text);display:flex;align-items:center;justify-content:center;padding:14px;font-size:calc(15px * var(--ui));transition:background .3s,color .3s}
+:root{--bg:#0f172a;--card:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--line:#334155;--accent:#38bdf8;--accent2:#a78bfa;--radius:18px;--ui:1;--font:"Noto Sans Thai",sans-serif}
+body{margin:0;min-height:100vh;font-family:var(--font);background:var(--bg);color:var(--text);display:flex;align-items:center;justify-content:center;padding:14px;font-size:calc(15px*var(--ui));transition:background .3s,color .3s}
 .card{width:100%;max-width:420px;background:var(--card);border-radius:24px;padding:18px;box-shadow:0 12px 32px rgba(0,0,0,.3);position:relative;overflow:hidden}
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .logo{font-weight:800;font-size:18px;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -58,293 +55,293 @@ button:active{transform:scale(.94);filter:brightness(1.15)}
 </head>
 <body>
 <canvas class="bgcanvas" id="bg"></canvas>
-<div class="cat" id="mascot">🐱</div>
+<div class="cat" id="mascot" style="display:none">🐱</div>
 
 <div class="card">
 <div class="topbar">
-  <div class="iconbtn" onclick="openSettings()">⚙️</div>
-  <div class="logo">Postbox Ping</div>
-  <div class="iconbtn" onclick="toggleLang()">🌐</div>
+<div class="iconbtn" onclick="openSettings()">⚙️</div>
+<div class="logo">Postbox Ping</div>
+<div class="iconbtn" onclick="toggleLang()">🌐</div>
 </div>
 
 <div id="loading" class="screen active">
-  <h1>Postbox Ping</h1>
-  <p data-i18n="loading">กำลังเชื่อมต่อ LINE...</p>
-  <div class="message">...</div>
+<h1>Postbox Ping</h1>
+<p data-i18n="loading">กำลังเชื่อมต่อ LINE...</p>
+<div class="message">...</div>
 </div>
 
 <div id="welcome" class="screen">
-  <h1 data-i18n="welcomeTitle">ยินดีต้อนรับสู่ Postbox Ping</h1>
-  <p data-i18n="welcomeSub">ระบบกล่องรับพัสดุอัจฉริยะ</p>
-  <button class="primary full" onclick="showScreen('register')" data-i18n="register">สมัครใช้งาน</button>
-  <button class="full" onclick="showScreen('login')" data-i18n="login">เข้าสู่ระบบ</button>
-  <button class="link full" onclick="showScreen('help')" data-i18n="help">วิธีใช้งาน</button>
-  <div class="message">Postbox Ping</div>
+<h1 data-i18n="welcomeTitle">ยินดีต้อนรับสู่ Postbox Ping</h1>
+<p data-i18n="welcomeSub">ระบบกล่องรับพัสดุอัจฉริยะ</p>
+<button class="primary full" onclick="showScreen('register')" data-i18n="register">สมัครใช้งาน</button>
+<button class="full" onclick="showScreen('login')" data-i18n="login">เข้าสู่ระบบ</button>
+<button class="link full" onclick="showScreen('help')" data-i18n="help">วิธีใช้งาน</button>
+<div class="message" id="welcomeMessage">Postbox Ping</div>
 </div>
 
 <div id="register" class="screen">
-  <h2 data-i18n="regTitle">ลงทะเบียนผู้ใช้</h2>
-  <div class="field"><label data-i18n="nickname">ชื่อเล่น</label><input id="regNickname"></div>
-  <div class="field"><label data-i18n="age">อายุ</label><input id="regAge" type="number"></div>
-  <div class="field"><label data-i18n="birthdate">วันเกิด</label><input id="regBirthdate" type="date"></div>
-  <div class="field"><label data-i18n="phone">เบอร์โทร</label><input id="regPhone" type="tel"></div>
-  <div class="field"><label data-i18n="username">ชื่อผู้ใช้</label><input id="regUsername"></div>
-  <div class="field"><label data-i18n="password">รหัสผ่าน</label><input id="regPassword" type="password"></div>
-  <button class="primary full" onclick="registerUser()" data-i18n="registerBtn">สมัครใช้งาน</button>
-  <button class="link full" onclick="showScreen('welcome')" data-i18n="back">กลับ</button>
-  <div class="message" id="registerMessage"></div>
+<h2 data-i18n="regTitle">ลงทะเบียนผู้ใช้</h2>
+<div class="field"><label data-i18n="nickname">ชื่อเล่น</label><input id="regNickname"></div>
+<div class="field"><label data-i18n="age">อายุ</label><input id="regAge" type="number"></div>
+<div class="field"><label data-i18n="birthdate">วันเกิด</label><input id="regBirthdate" type="date"></div>
+<div class="field"><label data-i18n="phone">เบอร์โทร</label><input id="regPhone" type="tel"></div>
+<div class="field"><label data-i18n="username">ชื่อผู้ใช้</label><input id="regUsername"></div>
+<div class="field"><label data-i18n="password">รหัสผ่าน</label><input id="regPassword" type="password"></div>
+<button class="primary full" onclick="registerUser()" data-i18n="registerBtn">สมัครใช้งาน</button>
+<button class="link full" onclick="showScreen('welcome')" data-i18n="back">กลับ</button>
+<div class="message" id="registerMessage"></div>
 </div>
 
 <div id="security" class="screen">
-  <h2 data-i18n="secTitle">ตั้งคำถามกู้คืน PIN</h2>
-  <div class="field"><label data-i18n="q1">คำถามที่ 1</label>
-    <select id="q1"><option data-i18n="q1a">ชื่อสัตว์เลี้ยงแรก?</option><option data-i18n="q1b">ชื่อเมืองที่เกิด?</option><option data-i18n="q1c">อาหารที่ชอบ?</option></select>
-  </div>
-  <div class="field"><label data-i18n="a1">คำตอบที่ 1</label><input id="a1"></div>
-  <div class="field"><label data-i18n="q2">คำถามที่ 2</label>
-    <select id="q2"><option data-i18n="q2a">ชื่อเพื่อนสนิท?</option><option data-i18n="q2b">โรงเรียนประถม?</option><option data-i18n="q2c">สีที่ชอบ?</option></select>
-  </div>
-  <div class="field"><label data-i18n="a2">คำตอบที่ 2</label><input id="a2"></div>
-  <button class="primary full" onclick="saveSecurity()" data-i18n="saveSec">บันทึกคำถาม</button>
-  <div class="message" id="securityMessage"></div>
+<h2 data-i18n="secTitle">ตั้งคำถามกู้คืน PIN</h2>
+<div class="field"><label data-i18n="q1">คำถามที่ 1</label>
+<select id="q1"><option data-i18n="q1a">ชื่อสัตว์เลี้ยงแรก?</option><option data-i18n="q1b">ชื่อเมืองที่เกิด?</option><option data-i18n="q1c">อาหารที่ชอบ?</option></select>
+</div>
+<div class="field"><label data-i18n="a1">คำตอบที่ 1</label><input id="a1"></div>
+<div class="field"><label data-i18n="q2">คำถามที่ 2</label>
+<select id="q2"><option data-i18n="q2a">ชื่อเพื่อนสนิท?</option><option data-i18n="q2b">โรงเรียนประถม?</option><option data-i18n="q2c">สีที่ชอบ?</option></select>
+</div>
+<div class="field"><label data-i18n="a2">คำตอบที่ 2</label><input id="a2"></div>
+<button class="primary full" onclick="saveSecurity()" data-i18n="saveSec">บันทึกคำถาม</button>
+<div class="message" id="securityMessage"></div>
 </div>
 
 <div id="setpin" class="screen">
-  <h2 data-i18n="setpinTitle">ตั้งรหัส PIN</h2>
-  <div class="code">
-    <div class="digit" id="s1"></div><div class="digit" id="s2"></div>
-    <div class="digit" id="s3"></div><div class="digit" id="s4"></div>
-  </div>
-  <div class="keypad">
-    <button onclick="pinInput('1')">1</button><button onclick="pinInput('2')">2</button><button onclick="pinInput('3')">3</button>
-    <button onclick="pinInput('4')">4</button><button onclick="pinInput('5')">5</button><button onclick="pinInput('6')">6</button>
-    <button onclick="pinInput('7')">7</button><button onclick="pinInput('8')">8</button><button onclick="pinInput('9')">9</button>
-    <button class="danger" onclick="pinClear()">C</button><button onclick="pinInput('0')">0</button><button class="primary" onclick="goConfirm()" data-i18n="confirm">ยืนยัน</button>
-  </div>
-  <div class="message" id="setpinMessage"></div>
+<h2 data-i18n="setpinTitle">ตั้งรหัส PIN</h2>
+<div class="code">
+<div class="digit" id="s1"></div><div class="digit" id="s2"></div>
+<div class="digit" id="s3"></div><div class="digit" id="s4"></div>
+</div>
+<div class="keypad">
+<button onclick="pinInput('1')">1</button><button onclick="pinInput('2')">2</button><button onclick="pinInput('3')">3</button>
+<button onclick="pinInput('4')">4</button><button onclick="pinInput('5')">5</button><button onclick="pinInput('6')">6</button>
+<button onclick="pinInput('7')">7</button><button onclick="pinInput('8')">8</button><button onclick="pinInput('9')">9</button>
+<button class="danger" onclick="pinClear()">C</button><button onclick="pinInput('0')">0</button><button class="primary" onclick="goConfirm()" data-i18n="confirm">ยืนยัน</button>
+</div>
+<div class="message" id="setpinMessage"></div>
 </div>
 
 <div id="confirmpin" class="screen">
-  <h2 data-i18n="confirmTitle">ยืนยันรหัส PIN</h2>
-  <div class="code">
-    <div class="digit" id="c1"></div><div class="digit" id="c2"></div>
-    <div class="digit" id="c3"></div><div class="digit" id="c4"></div>
-  </div>
-  <div class="keypad">
-    <button onclick="confirmInput('1')">1</button><button onclick="confirmInput('2')">2</button><button onclick="confirmInput('3')">3</button>
-    <button onclick="confirmInput('4')">4</button><button onclick="confirmInput('5')">5</button><button onclick="confirmInput('6')">6</button>
-    <button onclick="confirmInput('7')">7</button><button onclick="confirmInput('8')">8</button><button onclick="confirmInput('9')">9</button>
-    <button class="danger" onclick="confirmClear()">C</button><button onclick="confirmInput('0')">0</button><button class="success" onclick="savePin()" data-i18n="save">บันทึก</button>
-  </div>
-  <div class="message" id="confirmpinMessage"></div>
+<h2 data-i18n="confirmTitle">ยืนยันรหัส PIN</h2>
+<div class="code">
+<div class="digit" id="c1"></div><div class="digit" id="c2"></div>
+<div class="digit" id="c3"></div><div class="digit" id="c4"></div>
+</div>
+<div class="keypad">
+<button onclick="confirmInput('1')">1</button><button onclick="confirmInput('2')">2</button><button onclick="confirmInput('3')">3</button>
+<button onclick="confirmInput('4')">4</button><button onclick="confirmInput('5')">5</button><button onclick="confirmInput('6')">6</button>
+<button onclick="confirmInput('7')">7</button><button onclick="confirmInput('8')">8</button><button onclick="confirmInput('9')">9</button>
+<button class="danger" onclick="confirmClear()">C</button><button onclick="confirmInput('0')">0</button><button class="success" onclick="savePin()" data-i18n="save">บันทึก</button>
+</div>
+<div class="message" id="confirmpinMessage"></div>
 </div>
 
 <div id="login" class="screen">
-  <h2 data-i18n="loginTitle">เข้าสู่ระบบ</h2>
-  <div class="field"><label data-i18n="username">ชื่อผู้ใช้</label><input id="loginUsername"></div>
-  <div class="field"><label data-i18n="password">รหัสผ่าน</label><input id="loginPassword" type="password"></div>
-  <button class="primary full" onclick="loginUser()" data-i18n="loginBtn">เข้าสู่ระบบ</button>
-  <button class="link full" onclick="showForgotPassword()" data-i18n="forgotPass">ลืมรหัสผ่าน?</button>
-  <button class="full" onclick="showScreen('welcome')" data-i18n="back">กลับ</button>
-  <div class="message" id="loginMessage"></div>
+<h2 data-i18n="loginTitle">เข้าสู่ระบบ</h2>
+<div class="field"><label data-i18n="username">ชื่อผู้ใช้</label><input id="loginUsername"></div>
+<div class="field"><label data-i18n="password">รหัสผ่าน</label><input id="loginPassword" type="password"></div>
+<button class="primary full" onclick="loginUser()" data-i18n="loginBtn">เข้าสู่ระบบ</button>
+<button class="link full" onclick="showForgotPassword()" data-i18n="forgotPass">ลืมรหัสผ่าน?</button>
+<button class="full" onclick="showScreen('welcome')" data-i18n="back">กลับ</button>
+<div class="message" id="loginMessage"></div>
 </div>
 
 <div id="forgotpassword" class="screen">
-  <h2 data-i18n="forgotTitle">ลืมรหัสผ่าน</h2>
-  <p id="forgotPasswordQuestion"></p>
-  <div class="field"><label data-i18n="answer">คำตอบ</label><input id="forgotPasswordAnswer"></div>
-  <button class="primary full" onclick="verifyForgotPassword()" data-i18n="verify">ยืนยันตัวตน</button>
-  <button class="full" onclick="showScreen('login')" data-i18n="back">กลับ</button>
-  <div class="message" id="forgotPasswordMessage"></div>
+<h2 data-i18n="forgotTitle">ลืมรหัสผ่าน</h2>
+<p id="forgotPasswordQuestion"></p>
+<div class="field"><label data-i18n="answer">คำตอบ</label><input id="forgotPasswordAnswer"></div>
+<button class="primary full" onclick="verifyForgotPassword()" data-i18n="verify">ยืนยันตัวตน</button>
+<button class="full" onclick="showScreen('login')" data-i18n="back">กลับ</button>
+<div class="message" id="forgotPasswordMessage"></div>
 </div>
 
 <div id="resetpassword" class="screen">
-  <h2 data-i18n="resetPassTitle">ตั้งรหัสผ่านใหม่</h2>
-  <div class="field"><label data-i18n="newPass">รหัสผ่านใหม่</label><input id="newPassword" type="password"></div>
-  <div class="field"><label data-i18n="confirmNewPass">ยืนยันรหัสผ่านใหม่</label><input id="confirmNewPassword" type="password"></div>
-  <button class="primary full" onclick="saveNewPassword()" data-i18n="saveNewPass">บันทึก</button>
-  <button class="full" onclick="showScreen('login')" data-i18n="back">กลับ</button>
-  <div class="message" id="resetPasswordMessage"></div>
+<h2 data-i18n="resetPassTitle">ตั้งรหัสผ่านใหม่</h2>
+<div class="field"><label data-i18n="newPass">รหัสผ่านใหม่</label><input id="newPassword" type="password"></div>
+<div class="field"><label data-i18n="confirmNewPass">ยืนยันรหัสผ่านใหม่</label><input id="confirmNewPassword" type="password"></div>
+<button class="primary full" onclick="saveNewPassword()" data-i18n="saveNewPass">บันทึก</button>
+<button class="full" onclick="showScreen('login')" data-i18n="back">กลับ</button>
+<div class="message" id="resetPasswordMessage"></div>
 </div>
 
 <div id="menu" class="screen">
-  <div class="greeting" id="greeting"></div>
-  <div class="weather">
-    <div class="box"><div class="label" data-i18n="date">วันที่</div><div class="value" id="dateText"></div></div>
-    <div class="box"><div class="label" data-i18n="temp">อุณหภูมิ</div><div class="value" id="temperature"></div></div>
-    <div class="box"><div class="label" data-i18n="weather">สภาพอากาศ</div><div class="value" id="weatherText"></div></div>
-    <div class="box"><div class="label" data-i18n="wind">ลม</div><div class="value" id="windText"></div></div>
-  </div>
-  <h2 data-i18n="menuTitle">เมนูหลัก</h2>
-  <div class="menu">
-    <button class="primary" onclick="showScreen('unlock')">🔓 <span data-i18n="unlock">ปลดล็อกกล่อง</span></button>
-    <button onclick="showScreen('parcel')">📦 <span data-i18n="checkParcel">เช็คพัสดุ</span></button>
-    <button onclick="showScreen('boxstatus')">📊 <span data-i18n="boxStatus">สถานะกล่อง</span></button>
-    <button onclick="showScreen('changepin')">🔑 <span data-i18n="changePin">เปลี่ยนรหัส PIN</span></button>
-    <button onclick="showScreen('settings')">🎨 <span data-i18n="settings">ตั้งค่า</span></button>
-    <button class="danger" onclick="logout()">🚪 <span data-i18n="logout">ออกจากระบบ</span></button>
-  </div>
+<div class="greeting" id="greeting"></div>
+<div class="weather">
+<div class="box"><div class="label" data-i18n="date">วันที่</div><div class="value" id="dateText"></div></div>
+<div class="box"><div class="label" data-i18n="temp">อุณหภูมิ</div><div class="value" id="temperature"></div></div>
+<div class="box"><div class="label" data-i18n="weather">สภาพอากาศ</div><div class="value" id="weatherText"></div></div>
+<div class="box"><div class="label" data-i18n="wind">ลม</div><div class="value" id="windText"></div></div>
+</div>
+<h2 data-i18n="menuTitle">เมนูหลัก</h2>
+<div class="menu">
+<button class="primary" onclick="showScreen('unlock')">🔓 <span data-i18n="unlock">ปลดล็อกกล่อง</span></button>
+<button onclick="showScreen('parcel')">📦 <span data-i18n="checkParcel">เช็คพัสดุ</span></button>
+<button onclick="showScreen('boxstatus')">📊 <span data-i18n="boxStatus">สถานะกล่อง</span></button>
+<button onclick="showScreen('changepin')">🔑 <span data-i18n="changePin">เปลี่ยนรหัส PIN</span></button>
+<button onclick="showScreen('settings')">🎨 <span data-i18n="settings">ตั้งค่า</span></button>
+<button class="danger" onclick="logout()">🚪 <span data-i18n="logout">ออกจากระบบ</span></button>
+</div>
 </div>
 
 <div id="unlock" class="screen">
-  <h2 data-i18n="unlockTitle">ปลดล็อกกล่อง</h2>
-  <div class="code">
-    <div class="digit" id="u1"></div><div class="digit" id="u2"></div>
-    <div class="digit" id="u3"></div><div class="digit" id="u4"></div>
-  </div>
-  <div class="keypad">
-    <button onclick="unlockInput('1')">1</button><button onclick="unlockInput('2')">2</button><button onclick="unlockInput('3')">3</button>
-    <button onclick="unlockInput('4')">4</button><button onclick="unlockInput('5')">5</button><button onclick="unlockInput('6')">6</button>
-    <button onclick="unlockInput('7')">7</button><button onclick="unlockInput('8')">8</button><button onclick="unlockInput('9')">9</button>
-    <button class="danger" onclick="unlockClear()">C</button><button onclick="unlockInput('0')">0</button><button class="success" onclick="unlockBox()" data-i18n="unlockBtn">ปลดล็อก</button>
-  </div>
-  <button class="link full" onclick="showForgot()" data-i18n="forgotPin">ลืมรหัส PIN?</button>
-  <button class="full" onclick="showScreen('menu')" data-i18n="backMenu">กลับเมนู</button>
-  <div class="message" id="unlockMessage"></div>
+<h2 data-i18n="unlockTitle">ปลดล็อกกล่อง</h2>
+<div class="code">
+<div class="digit" id="u1"></div><div class="digit" id="u2"></div>
+<div class="digit" id="u3"></div><div class="digit" id="u4"></div>
+</div>
+<div class="keypad">
+<button onclick="unlockInput('1')">1</button><button onclick="unlockInput('2')">2</button><button onclick="unlockInput('3')">3</button>
+<button onclick="unlockInput('4')">4</button><button onclick="unlockInput('5')">5</button><button onclick="unlockInput('6')">6</button>
+<button onclick="unlockInput('7')">7</button><button onclick="unlockInput('8')">8</button><button onclick="unlockInput('9')">9</button>
+<button class="danger" onclick="unlockClear()">C</button><button onclick="unlockInput('0')">0</button><button class="success" onclick="unlockBox()" data-i18n="unlockBtn">ปลดล็อก</button>
+</div>
+<button class="link full" onclick="showForgot()" data-i18n="forgotPin">ลืมรหัส PIN?</button>
+<button class="full" onclick="showScreen('menu')" data-i18n="backMenu">กลับเมนู</button>
+<div class="message" id="unlockMessage"></div>
 </div>
 
 <div id="forgot" class="screen">
-  <h2 data-i18n="forgotPinTitle">กู้คืนรหัส PIN</h2>
-  <p id="forgotQuestion"></p>
-  <div class="field"><label data-i18n="answer">คำตอบ</label><input id="forgotAnswer"></div>
-  <button class="primary full" onclick="verifySecurity()" data-i18n="verify">ยืนยันตัวตน</button>
-  <button class="full" onclick="showScreen('unlock')" data-i18n="back">กลับ</button>
-  <div class="message" id="forgotMessage"></div>
+<h2 data-i18n="forgotPinTitle">กู้คืนรหัส PIN</h2>
+<p id="forgotQuestion"></p>
+<div class="field"><label data-i18n="answer">คำตอบ</label><input id="forgotAnswer"></div>
+<button class="primary full" onclick="verifySecurity()" data-i18n="verify">ยืนยันตัวตน</button>
+<button class="full" onclick="showScreen('unlock')" data-i18n="back">กลับ</button>
+<div class="message" id="forgotMessage"></div>
 </div>
 
 <div id="resetpin" class="screen">
-  <h2 data-i18n="resetPinTitle">ตั้งรหัส PIN ใหม่</h2>
-  <div class="code">
-    <div class="digit" id="r1"></div><div class="digit" id="r2"></div>
-    <div class="digit" id="r3"></div><div class="digit" id="r4"></div>
-  </div>
-  <div class="keypad">
-    <button onclick="resetInput('1')">1</button><button onclick="resetInput('2')">2</button><button onclick="resetInput('3')">3</button>
-    <button onclick="resetInput('4')">4</button><button onclick="resetInput('5')">5</button><button onclick="resetInput('6')">6</button>
-    <button onclick="resetInput('7')">7</button><button onclick="resetInput('8')">8</button><button onclick="resetInput('9')">9</button>
-    <button class="danger" onclick="resetClear()">C</button><button onclick="resetInput('0')">0</button><button class="success" onclick="saveResetPin()" data-i18n="save">บันทึก</button>
-  </div>
-  <div class="message" id="resetpinMessage"></div>
+<h2 data-i18n="resetPinTitle">ตั้งรหัส PIN ใหม่</h2>
+<div class="code">
+<div class="digit" id="r1"></div><div class="digit" id="r2"></div>
+<div class="digit" id="r3"></div><div class="digit" id="r4"></div>
+</div>
+<div class="keypad">
+<button onclick="resetInput('1')">1</button><button onclick="resetInput('2')">2</button><button onclick="resetInput('3')">3</button>
+<button onclick="resetInput('4')">4</button><button onclick="resetInput('5')">5</button><button onclick="resetInput('6')">6</button>
+<button onclick="resetInput('7')">7</button><button onclick="resetInput('8')">8</button><button onclick="resetInput('9')">9</button>
+<button class="danger" onclick="resetClear()">C</button><button onclick="resetInput('0')">0</button><button class="success" onclick="saveResetPin()" data-i18n="save">บันทึก</button>
+</div>
+<div class="message" id="resetpinMessage"></div>
 </div>
 
 <div id="parcel" class="screen">
-  <h2 data-i18n="parcelTitle">เช็คพัสดุ</h2>
-  <div class="box"><div class="label" data-i18n="parcelStatus">สถานะพัสดุ</div><div class="value" id="parcelStatus"></div></div>
-  <button class="primary full" onclick="refreshParcel()" data-i18n="refresh">รีเฟรช</button>
-  <button class="full" onclick="showScreen('menu')" data-i18n="backMenu">กลับเมนู</button>
-  <div class="message" id="parcelMessage"></div>
+<h2 data-i18n="parcelTitle">เช็คพัสดุ</h2>
+<div class="box"><div class="label" data-i18n="parcelStatus">สถานะพัสดุ</div><div class="value" id="parcelStatus"></div></div>
+<button class="primary full" onclick="refreshParcel()" data-i18n="refresh">รีเฟรช</button>
+<button class="full" onclick="showScreen('menu')" data-i18n="backMenu">กลับเมนู</button>
+<div class="message" id="parcelMessage"></div>
 </div>
 
 <div id="boxstatus" class="screen">
-  <h2 data-i18n="boxTitle">สถานะกล่อง</h2>
-  <div class="box"><div class="label" data-i18n="boxStatus">สถานะกล่อง</div><div class="value" id="boxStatus"></div></div>
-  <div class="box" style="margin-top:8px"><div class="label" data-i18n="lastUpdate">อัปเดตล่าสุด</div><div class="value" id="lastUpdate"></div></div>
-  <button class="primary full" onclick="refreshBox()" data-i18n="refresh">รีเฟรช</button>
-  <button class="full" onclick="showScreen('menu')" data-i18n="backMenu">กลับเมนู</button>
-  <div class="message" id="boxMessage"></div>
+<h2 data-i18n="boxTitle">สถานะกล่อง</h2>
+<div class="box"><div class="label" data-i18n="boxStatus">สถานะกล่อง</div><div class="value" id="boxStatus"></div></div>
+<div class="box" style="margin-top:8px"><div class="label" data-i18n="lastUpdate">อัปเดตล่าสุด</div><div class="value" id="lastUpdate"></div></div>
+<button class="primary full" onclick="refreshBox()" data-i18n="refresh">รีเฟรช</button>
+<button class="full" onclick="showScreen('menu')" data-i18n="backMenu">กลับเมนู</button>
+<div class="message" id="boxMessage"></div>
 </div>
 
 <div id="changepin" class="screen">
-  <h2 data-i18n="changePinTitle">เปลี่ยนรหัส PIN</h2>
-  <div class="code">
-    <div class="digit" id="o1"></div><div class="digit" id="o2"></div>
-    <div class="digit" id="o3"></div><div class="digit" id="o4"></div>
-  </div>
-  <div class="keypad">
-    <button onclick="oldInput('1')">1</button><button onclick="oldInput('2')">2</button><button onclick="oldInput('3')">3</button>
-    <button onclick="oldInput('4')">4</button><button onclick="oldInput('5')">5</button><button onclick="oldInput('6')">6</button>
-    <button onclick="oldInput('7')">7</button><button onclick="oldInput('8')">8</button><button onclick="oldInput('9')">9</button>
-    <button class="danger" onclick="oldClear()">C</button><button onclick="oldInput('0')">0</button><button class="primary" onclick="verifyOldPin()" data-i18n="verify">ยืนยัน</button>
-  </div>
-  <button class="link full" onclick="showForgot()" data-i18n="forgotPin">ลืมรหัส PIN?</button>
-  <button class="full" onclick="showScreen('menu')" data-i18n="backMenu">กลับเมนู</button>
-  <div class="message" id="changepinMessage"></div>
+<h2 data-i18n="changePinTitle">เปลี่ยนรหัส PIN</h2>
+<div class="code">
+<div class="digit" id="o1"></div><div class="digit" id="o2"></div>
+<div class="digit" id="o3"></div><div class="digit" id="o4"></div>
+</div>
+<div class="keypad">
+<button onclick="oldInput('1')">1</button><button onclick="oldInput('2')">2</button><button onclick="oldInput('3')">3</button>
+<button onclick="oldInput('4')">4</button><button onclick="oldInput('5')">5</button><button onclick="oldInput('6')">6</button>
+<button onclick="oldInput('7')">7</button><button onclick="oldInput('8')">8</button><button onclick="oldInput('9')">9</button>
+<button class="danger" onclick="oldClear()">C</button><button onclick="oldInput('0')">0</button><button class="primary" onclick="verifyOldPin()" data-i18n="verify">ยืนยัน</button>
+</div>
+<button class="link full" onclick="showForgot()" data-i18n="forgotPin">ลืมรหัส PIN?</button>
+<button class="full" onclick="showScreen('menu')" data-i18n="backMenu">กลับเมนู</button>
+<div class="message" id="changepinMessage"></div>
 </div>
 
 <div id="newpin" class="screen">
-  <h2 data-i18n="newPinTitle">ตั้งรหัสใหม่</h2>
-  <div class="code">
-    <div class="digit" id="n1"></div><div class="digit" id="n2"></div>
-    <div class="digit" id="n3"></div><div class="digit" id="n4"></div>
-  </div>
-  <div class="keypad">
-    <button onclick="newInput('1')">1</button><button onclick="newInput('2')">2</button><button onclick="newInput('3')">3</button>
-    <button onclick="newInput('4')">4</button><button onclick="newInput('5')">5</button><button onclick="newInput('6')">6</button>
-    <button onclick="newInput('7')">7</button><button onclick="newInput('8')">8</button><button onclick="newInput('9')">9</button>
-    <button class="danger" onclick="newClear()">C</button><button onclick="newInput('0')">0</button><button class="success" onclick="saveNewPin()" data-i18n="save">บันทึก</button>
-  </div>
-  <div class="message" id="newpinMessage"></div>
+<h2 data-i18n="newPinTitle">ตั้งรหัสใหม่</h2>
+<div class="code">
+<div class="digit" id="n1"></div><div class="digit" id="n2"></div>
+<div class="digit" id="n3"></div><div class="digit" id="n4"></div>
+</div>
+<div class="keypad">
+<button onclick="newInput('1')">1</button><button onclick="newInput('2')">2</button><button onclick="newInput('3')">3</button>
+<button onclick="newInput('4')">4</button><button onclick="newInput('5')">5</button><button onclick="newInput('6')">6</button>
+<button onclick="newInput('7')">7</button><button onclick="newInput('8')">8</button><button onclick="newInput('9')">9</button>
+<button class="danger" onclick="newClear()">C</button><button onclick="newInput('0')">0</button><button class="success" onclick="saveNewPin()" data-i18n="save">บันทึก</button>
+</div>
+<div class="message" id="newpinMessage"></div>
 </div>
 
 <div id="settings" class="screen">
-  <h2 data-i18n="settingsTitle">ตั้งค่า</h2>
-  <div class="field"><label data-i18n="themeColor">สีธีม</label><input type="color" id="themeColor" value="#38bdf8" oninput="applyTheme()"></div>
-  <div class="field"><label data-i18n="themeIntensity">ความเข้มสี</label><input type="range" min="0" max="100" value="60" class="slider" oninput="applyTheme()"></div>
-  <div class="field"><label data-i18n="uiScale">ขนาด UI</label><input type="range" min="80" max="140" value="100" class="slider" oninput="applyUi()"></div>
-  <div class="field"><label data-i18n="font">ฟอนต์</label>
-    <select id="fontSelect" onchange="applyFont()">
-      <option value='"Noto Sans Thai",sans-serif'>Noto Sans Thai</option>
-      <option value='"Sarabun",sans-serif'>Sarabun</option>
-      <option value='"Kanit",sans-serif'>Kanit</option>
-    </select>
-  </div>
-  <div class="field"><label data-i18n="bgm">เพลงพื้นหลัง</label>
-    <select id="bgmSelect" onchange="setBgm()">
-      <option value="none" data-i18n="none">ปิด</option>
-      <option value="happy" data-i18n="bgm1">สนุกร่าเริง</option>
-      <option value="chill" data-i18n="bgm2">ฟังลื่นหู</option>
-      <option value="cute" data-i18n="bgm3">น่ารัก</option>
-    </select>
-  </div>
-  <div class="field"><label data-i18n="bgmVolume">ระดับเสียงเพลง</label><input type="range" min="0" max="100" value="30" class="slider" oninput="setVolume()"></div>
-  <div class="field"><label data-i18n="sfxVolume">ระดับเสียงปุ่ม</label><input type="range" min="0" max="100" value="50" class="slider" oninput="setVolume()"></div>
-  <div class="field"><label data-i18n="background">พื้นหลังพิเศษ</label>
-    <select id="bgSelect" onchange="setBackground()">
-      <option value="none" data-i18n="none">ปิด</option>
-      <option value="cat" data-i18n="catBg">แมว</option>
-      <option value="robot" data-i18n="robotBg">หุ่นยนต์</option>
-    </select>
-  </div>
-  <button class="full" onclick="showScreen('menu')" data-i18n="backMenu">กลับเมนู</button>
-  <div class="message">Postbox Ping</div>
+<h2 data-i18n="settingsTitle">ตั้งค่า</h2>
+<div class="field"><label data-i18n="themeColor">สีธีม</label><input type="color" id="themeColor" value="#38bdf8" oninput="applyTheme()"></div>
+<div class="field"><label data-i18n="themeIntensity">ความเข้มสี</label><input type="range" min="0" max="100" value="60" class="slider" oninput="applyTheme()"></div>
+<div class="field"><label data-i18n="uiScale">ขนาด UI</label><input type="range" min="80" max="140" value="100" class="slider" oninput="applyUi()"></div>
+<div class="field"><label data-i18n="font">ฟอนต์</label>
+<select id="fontSelect" onchange="applyFont()">
+<option value='"Noto Sans Thai",sans-serif'>Noto Sans Thai</option>
+<option value='"Sarabun",sans-serif'>Sarabun</option>
+<option value='"Kanit",sans-serif'>Kanit</option>
+</select>
+</div>
+<div class="field"><label data-i18n="bgm">เพลงพื้นหลัง</label>
+<select id="bgmSelect" onchange="setBgm()">
+<option value="none" data-i18n="none">ปิด</option>
+<option value="happy" data-i18n="bgm1">สนุกร่าเริง</option>
+<option value="chill" data-i18n="bgm2">ฟังลื่นหู</option>
+<option value="cute" data-i18n="bgm3">น่ารัก</option>
+</select>
+</div>
+<div class="field"><label data-i18n="bgmVolume">ระดับเสียงเพลง</label><input type="range" min="0" max="100" value="30" class="slider" oninput="setVolume()"></div>
+<div class="field"><label data-i18n="sfxVolume">ระดับเสียงปุ่ม</label><input type="range" min="0" max="100" value="50" class="slider" oninput="setVolume()"></div>
+<div class="field"><label data-i18n="background">พื้นหลังพิเศษ</label>
+<select id="bgSelect" onchange="setBackground()">
+<option value="none" data-i18n="none">ปิด</option>
+<option value="cat" data-i18n="catBg">แมว</option>
+<option value="robot" data-i18n="robotBg">หุ่นยนต์</option>
+</select>
+</div>
+<button class="full" onclick="showScreen('menu')" data-i18n="backMenu">กลับเมนู</button>
+<div class="message">Postbox Ping</div>
 </div>
 
 <div id="help" class="screen">
-  <h2 data-i18n="helpTitle">วิธีใช้งาน</h2>
-  <div class="help">
-    <b data-i18n="help1">1. สมัครใช้งาน</b><br><span data-i18n="help1d">กรอกข้อมูลและตั้งคำถามกู้คืน PIN</span><br><br>
-    <b data-i18n="help2">2. ตั้ง PIN</b><br><span data-i18n="help2d">ตั้งรหัส 4 หลักสำหรับปลดล็อกกล่อง</span><br><br>
-    <b data-i18n="help3">3. ปลดล็อก</b><br><span data-i18n="help3d">ใส่ PIN เพื่อเปิดกล่อง</span><br><br>
-    <b data-i18n="help4">4. เช็คพัสดุ</b><br><span data-i18n="help4d">ดูว่ามีพัสดุอยู่หรือไม่</span><br><br>
-    <b data-i18n="help5">5. ตั้งค่า</b><br><span data-i18n="help5d">เปลี่ยนธีม ฟอนต์ เสียง และ UI</span>
-  </div>
-  <button class="full" onclick="showScreen('welcome')" data-i18n="back">กลับ</button>
+<h2 data-i18n="helpTitle">วิธีใช้งาน</h2>
+<div class="help">
+<b data-i18n="help1">1. สมัครใช้งาน</b><br><span data-i18n="help1d">กรอกข้อมูลและตั้งคำถามกู้คืน PIN</span><br><br>
+<b data-i18n="help2">2. ตั้ง PIN</b><br><span data-i18n="help2d">ตั้งรหัส 4 หลักสำหรับปลดล็อกกล่อง</span><br><br>
+<b data-i18n="help3">3. ปลดล็อก</b><br><span data-i18n="help3d">ใส่ PIN เพื่อเปิดกล่อง</span><br><br>
+<b data-i18n="help4">4. เช็คพัสดุ</b><br><span data-i18n="help4d">ดูว่ามีพัสดุอยู่หรือไม่</span><br><br>
+<b data-i18n="help5">5. ตั้งค่า</b><br><span data-i18n="help5d">เปลี่ยนธีม ฟอนต์ เสียง และ UI</span>
+</div>
+<button class="full" onclick="showScreen('welcome')" data-i18n="back">กลับ</button>
 </div>
 
 <div class="small">Postbox Ping — LIFF Demo</div>
 </div>
 
 <script>
-const I18N = {
-  th:{loading:"กำลังเชื่อมต่อ LINE...",welcomeTitle:"ยินดีต้อนรับสู่ Postbox Ping",welcomeSub:"ระบบกล่องรับพัสดุอัจฉริยะ",register:"สมัครใช้งาน",login:"เข้าสู่ระบบ",help:"วิธีใช้งาน",regTitle:"ลงทะเบียนผู้ใช้",nickname:"ชื่อเล่น",age:"อายุ",birthdate:"วันเกิด",phone:"เบอร์โทร",username:"ชื่อผู้ใช้",password:"รหัสผ่าน",registerBtn:"สมัครใช้งาน",back:"กลับ",secTitle:"ตั้งคำถามกู้คืน PIN",q1:"คำถามที่ 1",q1a:"ชื่อสัตว์เลี้ยงแรก?",q1b:"ชื่อเมืองที่เกิด?",q1c:"อาหารที่ชอบ?",a1:"คำตอบที่ 1",q2:"คำถามที่ 2",q2a:"ชื่อเพื่อนสนิท?",q2b:"โรงเรียนประถม?",q2c:"สีที่ชอบ?",a2:"คำตอบที่ 2",saveSec:"บันทึกคำถาม",setpinTitle:"ตั้งรหัส PIN",confirm:"ยืนยัน",confirmTitle:"ยืนยันรหัส PIN",save:"บันทึก",loginTitle:"เข้าสู่ระบบ",loginBtn:"เข้าสู่ระบบ",forgotPass:"ลืมรหัสผ่าน?",forgotTitle:"ลืมรหัสผ่าน",answer:"คำตอบ",verify:"ยืนยันตัวตน",resetPassTitle:"ตั้งรหัสผ่านใหม่",newPass:"รหัสผ่านใหม่",confirmNewPass:"ยืนยันรหัสผ่านใหม่",saveNewPass:"บันทึก",menuTitle:"เมนูหลัก",unlock:"ปลดล็อกกล่อง",checkParcel:"เช็คพัสดุ",boxStatus:"สถานะกล่อง",changePin:"เปลี่ยนรหัส PIN",settings:"ตั้งค่า",logout:"ออกจากระบบ",unlockTitle:"ปลดล็อกกล่อง",unlockBtn:"ปลดล็อก",forgotPin:"ลืมรหัส PIN?",backMenu:"กลับเมนู",forgotPinTitle:"กู้คืนรหัส PIN",resetPinTitle:"ตั้งรหัส PIN ใหม่",parcelTitle:"เช็คพัสดุ",parcelStatus:"สถานะพัสดุ",refresh:"รีเฟรช",boxTitle:"สถานะกล่อง",lastUpdate:"อัปเดตล่าสุด",changePinTitle:"เปลี่ยนรหัส PIN",newPinTitle:"ตั้งรหัสใหม่",settingsTitle:"ตั้งค่า",themeColor:"สีธีม",themeIntensity:"ความเข้มสี",uiScale:"ขนาด UI",font:"ฟอนต์",bgm:"เพลงพื้นหลัง",none:"ปิด",bgm1:"สนุกร่าเริง",bgm2:"ฟังลื่นหู",bgm3:"น่ารัก",bgmVolume:"ระดับเสียงเพลง",sfxVolume:"ระดับเสียงปุ่ม",background:"พื้นหลังพิเศษ",catBg:"แมว",robotBg:"หุ่นยนต์",helpTitle:"วิธีใช้งาน",help1:"1. สมัครใช้งาน",help1d:"กรอกข้อมูลและตั้งคำถามกู้คืน PIN",help2:"2. ตั้ง PIN",help2d:"ตั้งรหัส 4 หลักสำหรับปลดล็อกกล่อง",help3:"3. ปลดล็อก",help3d:"ใส่ PIN เพื่อเปิดกล่อง",help4:"4. เช็คพัสดุ",help4d:"ดูว่ามีพัสดุอยู่หรือไม่",help5:"5. ตั้งค่า",help5d:"เปลี่ยนธีม ฟอนต์ เสียง และ UI",date:"วันที่",temp:"อุณหภูมิ",weather:"สภาพอากาศ",wind:"ลม"},
-  en:{loading:"Connecting to LINE...",welcomeTitle:"Welcome to Postbox Ping",welcomeSub:"Smart parcel box system",register:"Register",login:"Log in",help:"How to use",regTitle:"User registration",nickname:"Nickname",age:"Age",birthdate:"Birthdate",phone:"Phone",username:"Username",password:"Password",registerBtn:"Register",back:"Back",secTitle:"Set recovery questions",q1:"Question 1",q1a:"First pet name?",q1b:"Birth city?",q1c:"Favorite food?",a1:"Answer 1",q2:"Question 2",q2a:"Best friend name?",q2b:"Primary school?",q2c:"Favorite color?",a2:"Answer 2",saveSec:"Save questions",setpinTitle:"Set PIN",confirm:"Confirm",confirmTitle:"Confirm PIN",save:"Save",loginTitle:"Log in",loginBtn:"Log in",forgotPass:"Forgot password?",forgotTitle:"Forgot password",answer:"Answer",verify:"Verify",resetPassTitle:"Set new password",newPass:"New password",confirmNewPass:"Confirm new password",saveNewPass:"Save",menuTitle:"Main menu",unlock:"Unlock box",checkParcel:"Check parcel",boxStatus:"Box status",changePin:"Change PIN",settings:"Settings",logout:"Log out",unlockTitle:"Unlock box",unlockBtn:"Unlock",forgotPin:"Forgot PIN?",backMenu:"Back to menu",forgotPinTitle:"Recover PIN",resetPinTitle:"Set new PIN",parcelTitle:"Check parcel",parcelStatus:"Parcel status",refresh:"Refresh",boxTitle:"Box status",lastUpdate:"Last update",changePinTitle:"Change PIN",newPinTitle:"Set new PIN",settingsTitle:"Settings",themeColor:"Theme color",themeIntensity:"Color intensity",uiScale:"UI scale",font:"Font",bgm:"Background music",none:"Off",bgm1:"Happy",bgm2:"Smooth",bgm3:"Cute",bgmVolume:"Music volume",sfxVolume:"Button volume",background:"Special background",catBg:"Cat",robotBg:"Robot",helpTitle:"How to use",help1:"1. Register",help1d:"Fill in your details and set recovery questions",help2:"2. Set PIN",help2d:"Set a 4-digit PIN to unlock the box",help3:"3. Unlock",help3d:"Enter your PIN to open the box",help4:"4. Check parcel",help4d:"See whether a parcel is inside",help5:"5. Settings",help5d:"Change theme, font, sound, and UI",date:"Date",temp:"Temperature",weather:"Weather",wind:"Wind"}
+const I18N={
+th:{loading:"กำลังเชื่อมต่อ LINE...",welcomeTitle:"ยินดีต้อนรับสู่ Postbox Ping",welcomeSub:"ระบบกล่องรับพัสดุอัจฉริยะ",register:"สมัครใช้งาน",login:"เข้าสู่ระบบ",help:"วิธีใช้งาน",regTitle:"ลงทะเบียนผู้ใช้",nickname:"ชื่อเล่น",age:"อายุ",birthdate:"วันเกิด",phone:"เบอร์โทร",username:"ชื่อผู้ใช้",password:"รหัสผ่าน",registerBtn:"สมัครใช้งาน",back:"กลับ",secTitle:"ตั้งคำถามกู้คืน PIN",q1:"คำถามที่ 1",q1a:"ชื่อสัตว์เลี้ยงแรก?",q1b:"ชื่อเมืองที่เกิด?",q1c:"อาหารที่ชอบ?",a1:"คำตอบที่ 1",q2:"คำถามที่ 2",q2a:"ชื่อเพื่อนสนิท?",q2b:"โรงเรียนประถม?",q2c:"สีที่ชอบ?",a2:"คำตอบที่ 2",saveSec:"บันทึกคำถาม",setpinTitle:"ตั้งรหัส PIN",confirm:"ยืนยัน",confirmTitle:"ยืนยันรหัส PIN",save:"บันทึก",loginTitle:"เข้าสู่ระบบ",loginBtn:"เข้าสู่ระบบ",forgotPass:"ลืมรหัสผ่าน?",forgotTitle:"ลืมรหัสผ่าน",answer:"คำตอบ",verify:"ยืนยันตัวตน",resetPassTitle:"ตั้งรหัสผ่านใหม่",newPass:"รหัสผ่านใหม่",confirmNewPass:"ยืนยันรหัสผ่านใหม่",saveNewPass:"บันทึก",menuTitle:"เมนูหลัก",unlock:"ปลดล็อกกล่อง",checkParcel:"เช็คพัสดุ",boxStatus:"สถานะกล่อง",changePin:"เปลี่ยนรหัส PIN",settings:"ตั้งค่า",logout:"ออกจากระบบ",unlockTitle:"ปลดล็อกกล่อง",unlockBtn:"ปลดล็อก",forgotPin:"ลืมรหัส PIN?",backMenu:"กลับเมนู",forgotPinTitle:"กู้คืนรหัส PIN",resetPinTitle:"ตั้งรหัส PIN ใหม่",parcelTitle:"เช็คพัสดุ",parcelStatus:"สถานะพัสดุ",refresh:"รีเฟรช",boxTitle:"สถานะกล่อง",lastUpdate:"อัปเดตล่าสุด",changePinTitle:"เปลี่ยนรหัส PIN",newPinTitle:"ตั้งรหัสใหม่",settingsTitle:"ตั้งค่า",themeColor:"สีธีม",themeIntensity:"ความเข้มสี",uiScale:"ขนาด UI",font:"ฟอนต์",bgm:"เพลงพื้นหลัง",none:"ปิด",bgm1:"สนุกร่าเริง",bgm2:"ฟังลื่นหู",bgm3:"น่ารัก",bgmVolume:"ระดับเสียงเพลง",sfxVolume:"ระดับเสียงปุ่ม",background:"พื้นหลังพิเศษ",catBg:"แมว",robotBg:"หุ่นยนต์",helpTitle:"วิธีใช้งาน",help1:"1. สมัครใช้งาน",help1d:"กรอกข้อมูลและตั้งคำถามกู้คืน PIN",help2:"2. ตั้ง PIN",help2d:"ตั้งรหัส 4 หลักสำหรับปลดล็อกกล่อง",help3:"3. ปลดล็อก",help3d:"ใส่ PIN เพื่อเปิดกล่อง",help4:"4. เช็คพัสดุ",help4d:"ดูว่ามีพัสดุอยู่หรือไม่",help5:"5. ตั้งค่า",help5d:"เปลี่ยนธีม ฟอนต์ เสียง และ UI",date:"วันที่",temp:"อุณหภูมิ",weather:"สภาพอากาศ",wind:"ลม"},
+en:{loading:"Connecting to LINE...",welcomeTitle:"Welcome to Postbox Ping",welcomeSub:"Smart parcel box system",register:"Register",login:"Log in",help:"How to use",regTitle:"User registration",nickname:"Nickname",age:"Age",birthdate:"Birthdate",phone:"Phone",username:"Username",password:"Password",registerBtn:"Register",back:"Back",secTitle:"Set recovery questions",q1:"Question 1",q1a:"First pet name?",q1b:"Birth city?",q1c:"Favorite food?",a1:"Answer 1",q2:"Question 2",q2a:"Best friend name?",q2b:"Primary school?",q2c:"Favorite color?",a2:"Answer 2",saveSec:"Save questions",setpinTitle:"Set PIN",confirm:"Confirm",confirmTitle:"Confirm PIN",save:"Save",loginTitle:"Log in",loginBtn:"Log in",forgotPass:"Forgot password?",forgotTitle:"Forgot password",answer:"Answer",verify:"Verify",resetPassTitle:"Set new password",newPass:"New password",confirmNewPass:"Confirm new password",saveNewPass:"Save",menuTitle:"Main menu",unlock:"Unlock box",checkParcel:"Check parcel",boxStatus:"Box status",changePin:"Change PIN",settings:"Settings",logout:"Log out",unlockTitle:"Unlock box",unlockBtn:"Unlock",forgotPin:"Forgot PIN?",backMenu:"Back to menu",forgotPinTitle:"Recover PIN",resetPinTitle:"Set new PIN",parcelTitle:"Check parcel",parcelStatus:"Parcel status",refresh:"Refresh",boxTitle:"Box status",lastUpdate:"Last update",changePinTitle:"Change PIN",newPinTitle:"Set new PIN",settingsTitle:"Settings",themeColor:"Theme color",themeIntensity:"Color intensity",uiScale:"UI scale",font:"Font",bgm:"Background music",none:"Off",bgm1:"Happy",bgm2:"Smooth",bgm3:"Cute",bgmVolume:"Music volume",sfxVolume:"Button volume",background:"Special background",catBg:"Cat",robotBg:"Robot",helpTitle:"How to use",help1:"1. Register",help1d:"Fill in your details and set recovery questions",help2:"2. Set PIN",help2d:"Set a 4-digit PIN to unlock the box",help3:"3. Unlock",help3d:"Enter your PIN to open the box",help4:"4. Check parcel",help4d:"See whether a parcel is inside",help5:"5. Settings",help5d:"Change theme, font, sound, and UI",date:"Date",temp:"Temperature",weather:"Weather",wind:"Wind"}
 };
-let lang = "th";
-const GREETINGS_TH = ["วันนี้เป็นวันที่ดี อย่าลืมรับพัสดุ!","สวัสดี! กล่องพัสดุพร้อมใช้งาน","อย่าลืมเช็คพัสดุก่อนออกจากบ้าน","ขอให้วันนี้ราบรื่นและพัสดุปลอดภัย","Postbox Ping พร้อมช่วยดูแลพัสดุของคุณ","อย่าลืมเก็บพัสดุจากกล่องนะ!","ขอให้วันนี้มีข่าวดีจากพัสดุของคุณ","ตรวจสถานะกล่องได้ทุกเมื่อ","ระบบพร้อมช่วยคุณเปิดกล่องอย่างปลอดภัย","อย่าลืมรหัส PIN นะ แต่ถ้าลืมก็กู้คืนได้","ขอบคุณที่ใช้ Postbox Ping","พัสดุปลอดภัยเมื่อคุณปลดล็อกด้วยรหัสของตัวเอง","วันนี้อากาศเป็นอย่างไร? อย่าลืมดูก่อนออกไปรับพัสดุ","Postbox Ping ช่วยให้การรับพัสดุง่ายขึ้น","หากมีพัสดุเข้า ระบบจะแจ้งเตือนผ่าน LINE","เช็คพัสดุก่อนออกจากบ้านเพื่อความสบายใจ","ขอให้วันนี้เต็มไปด้วยพัสดุดี ๆ","ระบบพร้อมช่วยคุณดูแลพัสดุ","อย่าลืมรับพัสดุก่อนกล่องเต็มนะ!","วันนี้เป็นวันที่ดีสำหรับการรับพัสดุ"];
-const GREETINGS_EN = ["Today is a great day. Don't forget your parcel!","Hello! Your parcel box is ready.","Check your parcel before leaving home.","Have a smooth day and safe parcels.","Postbox Ping is ready to help.","Don't forget to collect your parcel!","Hope today brings good parcel news.","Check box status anytime.","The system is ready to unlock safely.","Don't forget your PIN. You can recover it.","Thanks for using Postbox Ping.","Parcels are safe with your own PIN.","How's the weather today? Check before going out.","Postbox Ping makes parcel pickup easier.","If a parcel arrives, we'll notify you via LINE.","Check parcels before leaving home.","Have a parcel-filled day!","The system is ready to help.","Don't forget to collect parcels before the box is full.","Today is a great day for parcels!"];
+let lang="th";
+const GREETINGS_TH=["วันนี้เป็นวันที่ดี อย่าลืมรับพัสดุ!","สวัสดี! กล่องพัสดุพร้อมใช้งาน","อย่าลืมเช็คพัสดุก่อนออกจากบ้าน","ขอให้วันนี้ราบรื่นและพัสดุปลอดภัย","Postbox Ping พร้อมช่วยดูแลพัสดุของคุณ","อย่าลืมเก็บพัสดุจากกล่องนะ!","ขอให้วันนี้มีข่าวดีจากพัสดุของคุณ","ตรวจสถานะกล่องได้ทุกเมื่อ","ระบบพร้อมช่วยคุณเปิดกล่องอย่างปลอดภัย","อย่าลืมรหัส PIN นะ แต่ถ้าลืมก็กู้คืนได้","ขอบคุณที่ใช้ Postbox Ping","พัสดุปลอดภัยเมื่อคุณปลดล็อกด้วยรหัสของตัวเอง","วันนี้อากาศเป็นอย่างไร? อย่าลืมดูก่อนออกไปรับพัสดุ","Postbox Ping ช่วยให้การรับพัสดุง่ายขึ้น","หากมีพัสดุเข้า ระบบจะแจ้งเตือนผ่าน LINE","เช็คพัสดุก่อนออกจากบ้านเพื่อความสบายใจ","ขอให้วันนี้เต็มไปด้วยพัสดุดี ๆ","ระบบพร้อมช่วยคุณดูแลพัสดุ","อย่าลืมรับพัสดุก่อนกล่องเต็มนะ!","วันนี้เป็นวันที่ดีสำหรับการรับพัสดุ"];
+const GREETINGS_EN=["Today is a great day. Don't forget your parcel!","Hello! Your parcel box is ready.","Check your parcel before leaving home.","Have a smooth day and safe parcels.","Postbox Ping is ready to help.","Don't forget to collect your parcel!","Hope today brings good parcel news.","Check box status anytime.","The system is ready to unlock safely.","Don't forget your PIN. You can recover it.","Thanks for using Postbox Ping.","Parcels are safe with your own PIN.","How's the weather today? Check before going out.","Postbox Ping makes parcel pickup easier.","If a parcel arrives, we'll notify you via LINE.","Check parcels before leaving home.","Have a parcel-filled day!","The system is ready to help.","Don't forget to collect parcels before the box is full.","Today is a great day for parcels!"];
 
 let currentUser=null,setupPin="",confirmPinValue="",unlockPin="",oldPin="",newPin="",resetPin="";
-let forgotPasswordUser=null,bgmType="none",bgmVolume=.3,sfxVolume=.5,lang="th";
+let forgotPasswordUser=null,bgmType="none",bgmVolume=.3,sfxVolume=.5;
 
 function t(key){return I18N[lang][key]||key}
 function applyLang(){document.querySelectorAll("[data-i18n]").forEach(el=>{el.textContent=t(el.dataset.i18n)});document.documentElement.lang=lang}
-function toggleLang(){lang=lang==="th"?"en":"th";applyLang();updateMenu()}
+function toggleLang(){lang=lang==="th"?"en":"th";applyLang();if(currentUser)updateMenu()}
 
 function playClick(){try{const ctx=new (window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator();const g=ctx.createGain();o.type="square";o.frequency.value=600;g.gain.value=sfxVolume*.1;o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.06)}catch(e){}}
 document.addEventListener("click",e=>{if(e.target.tagName==="BUTTON")playClick()});
 
 let audioCtx=null,bgmNodes=null;
-function startBgm(type){stopBgm();if(type==="none")return;try{audioCtx=new (window.AudioContext||window.webkitAudioContext)();const master=audioCtx.createGain();master.gain.value=bgmVolume*.15;master.connect(audioCtx.destination);bgmNodes={master,osc:[]};const notes=type==="happy"?[523,659,784,659]:type==="chill"?[392,494,587,494]:[659,784,880,784];notes.forEach((f,i)=>{const o=audioCtx.createOscillator();const g=audioCtx.createGain();o.type="triangle";o.frequency.value=f;g.gain.value=.08;o.connect(g);g.connect(master);o.start();bgmNodes.osc.push(o)})}catch(e){}}
+function startBgm(type){stopBgm();if(type==="none")return;try{audioCtx=new (window.AudioContext||window.webkitAudioContext)();const master=audioCtx.createGain();master.gain.value=bgmVolume*.15;master.connect(audioCtx.destination);bgmNodes={master,osc:[]};const notes=type==="happy"?[523,659,784,659]:type==="chill"?[392,494,587,494]:[659,784,880,784];notes.forEach(f=>{const o=audioCtx.createOscillator();const g=audioCtx.createGain();o.type="triangle";o.frequency.value=f;g.gain.value=.08;o.connect(g);g.connect(master);o.start();bgmNodes.osc.push(o)})}catch(e){}}
 function stopBgm(){if(bgmNodes){try{bgmNodes.osc.forEach(o=>o.stop())}catch(e){}bgmNodes=null}}
 function setBgm(){bgmType=document.getElementById("bgmSelect").value;startBgm(bgmType)}
 function setVolume(){bgmVolume=document.getElementById("bgmVolume").value/100;sfxVolume=document.getElementById("sfxVolume").value/100;if(bgmNodes)bgmNodes.master.gain.value=bgmVolume*.15}
@@ -359,7 +356,28 @@ function applyFont(){document.body.style.setProperty("--font",document.getElemen
 function openSettings(){showScreen("settings")}
 function showHelp(){showScreen("help")}
 
-async function initLiff(){try{await liff.init({liffId:"2012709163-l8Pbt2Ad"});if(!liff.isLoggedIn()){liff.login();return}const profile=await liff.getProfile();currentUser={lineUserId:profile.userId,displayName:profile.displayName||"User",username:"",nickname:"",age:"",birthdate:"",phone:"",passwordHash:"",security:null,pinHash:"",hasParcel:false,boxLocked:true}}catch(e){currentUser={lineUserId:"demo-"+Date.now(),displayName:"Demo User",username:"",nickname:"",age:"",birthdate:"",phone:"",passwordHash:"",security:null,pinHash:"",hasParcel:false,boxLocked:true}}document.getElementById("loading").classList.remove("active");showScreen("welcome");applyLang()}
+async function initLiff(){
+document.getElementById("loading").classList.remove("active");
+showScreen("welcome");
+applyLang();
+try{
+await Promise.race([
+liff.init({liffId:"2012709163-l8Pbt2Ad"}),
+new Promise((_,reject)=>setTimeout(()=>reject(new Error("LIFF timeout")),4000))
+]);
+if(liff.isLoggedIn()){
+const profile=await liff.getProfile();
+currentUser={lineUserId:profile.userId,displayName:profile.displayName||"User",username:"",nickname:"",age:"",birthdate:"",phone:"",passwordHash:"",security:null,pinHash:"",hasParcel:false,boxLocked:true};
+setMessage("welcomeMessage","เชื่อมต่อ LINE สำเร็จ","success");
+}else{
+setMessage("welcomeMessage","ยังไม่ได้ล็อกอิน LINE","");
+}
+}catch(e){
+console.error("LIFF error:",e);
+currentUser={lineUserId:"demo-"+Date.now(),displayName:"Demo User",username:"",nickname:"",age:"",birthdate:"",phone:"",passwordHash:"",security:null,pinHash:"",hasParcel:false,boxLocked:true};
+setMessage("welcomeMessage","โหมดทดสอบ: ยังไม่ได้เชื่อม LINE","error");
+}
+}
 
 function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");if(id==="menu")updateMenu()}
 function setMessage(id,text,type){const m=document.getElementById(id);m.textContent=text;m.className="message";if(type)m.classList.add(type)}
