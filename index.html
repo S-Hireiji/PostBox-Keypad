@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Postbox Ping</title>
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;800&family=Sarabun:wght@400;600;800&family=Kanit:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--line:#334155;--accent:#38bdf8;--accent2:#a78bfa;--ui:1;--font:"Noto Sans Thai",sans-serif}
+body{margin:0;min-height:100vh;font-family:var(--font);background:var(--bg);color:var(--text);display:flex;align-items:center;justify-content:center;padding:14px;font-size:calc(15px*var(--ui));transition:background .3s,color .3s}
+.card{width:100%;max-width:420px;background:var(--card);border-radius:24px;padding:18px;box-shadow:0 12px 32px rgba(0,0,0,.3);position:relative;overflow:hidden}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.logo{font-weight:800;font-size:18px;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.iconbtn{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.iconbtn:active{transform:scale(.92)}
+.screen{display:none}.screen.active{display:block}
+h1{font-size:20px;margin:8px 0 6px;text-align:center}
+h2{font-size:17px;margin:0 0 12px;text-align:center}
+p{margin:0 0 12px;text-align:center;color:var(--muted);font-size:13px}
+.field{margin-bottom:10px}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+input,select{width:100%;height:42px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text);padding:0 12px;font-size:14px}
+.code{display:flex;justify-content:center;gap:8px;margin-bottom:14px}
+.digit{width:42px;height:52px;border-radius:12px;background:var(--bg);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800}
+.digit.filled{border-color:var(--accent);color:var(--accent)}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+button{height:46px;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;background:var(--line);color:var(--text);transition:transform .08s,filter .15s}
+button:active{transform:scale(.94);filter:brightness(1.15)}
+.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff}
+.success{background:linear-gradient(90deg,#22c55e,#16a34a);color:#fff}
+.danger{background:linear-gradient(90deg,#ef4444,#b91c1c);color:#fff}
+.full{width:100%;margin-top:8px}
+.link{background:transparent;color:var(--accent);font-size:13px;height:34px;text-decoration:underline}
+.message{margin-top:10px;min-height:38px;padding:9px;border-radius:12px;background:var(--bg);text-align:center;font-size:12px;color:var(--muted)}
+.message.success{color:#86efac;background:rgba(34,197,94,.15)}
+.message.error{color:#fca5a5;background:rgba(239,68,68,.15)}
+.weather{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.box{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:10px}
+.label{font-size:10px;color:var(--muted);margin-bottom:3px}
+.value{font-size:15px;font-weight:700}
+.greeting{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center;font-size:13px;margin-bottom:12px;color:var(--muted)}
+.menu{display:grid;gap:8px}
+.menu button{height:52px;font-size:15px}
+.settings-group{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
+.settings-group h3{font-size:14px;margin:0 0 8px;display:flex;align-items:center;gap:6px}
+.slider{width:100%;accent-color:var(--accent)}
+.bgcanvas{position:fixed;inset:0;z-index:-1;opacity:.35;pointer-events:none}
+.help{font-size:12px;color:var(--muted);line-height:1.6}
+.help b{color:var(--text)}
+.small{font-size:10px;color:var(--muted);text-align:center;margin-top:10px}
+</style>
+</head>
+<body>
+<canvas class="bgcanvas" id="bg"></canvas>
+
+<div class="card">
+<div class="topbar">
+<div class="iconbtn" onclick="openSettings()">⚙️</div>
+<div class="logo">Postbox Ping</div>
+<div class="iconbtn" onclick="toggleLang()">🌐</div>
+</div>
+
+<div id="loading" class="screen active">
+<h1>Postbox Ping</h1>
+<p data-i18n="loading">กำลังเชื่อมต่อ LINE...</p>
+<div class="message">...</div>
+</div>
+
+<div id="welcome" class="screen">
+<h1 data-i18n="welcomeTitle">ยินดีต้อนรับสู่ Postbox Ping</h1>
+<p data-i18n="welcomeSub">ระบบกล่องรับพัสดุอัจฉริยะ</p>
+<button class="primary full" onclick="showScreen('register')" data-i18n="register">สมัครใช้งาน</button>
+<button class="full" onclick="showScreen('login')" data-i18n="login">เข้าสู่ระบบ</button>
+<button class="link full" onclick="showScreen('help')" data-i18n="help">วิธีใช้งาน</button>
+<div class="message" id="welcomeMessage">Postbox Ping</div>
+</div>
+
+<div id="register" class="screen">
+<h2 data-i18n="regTitle">ลงทะเบียนผู้ใช้</h2>
+<div class="field"><label data-i18n="nickname">ชื่อเล่น</label><input id="regNickname"></div>
+<div class="field"><label data-i18n="age">อายุ</label><input id="regAge" type="number"></div>
+<div class="field"><label data-i18n="birthdate">วันเกิด</label><input id="regBirthdate" type="date"></div>
+<div class="field"><label data-i18n="phone">เบอร์โทร</label><input id="regPhone" type="tel"></div>
+<div class="field"><label data-i18n="username">ชื่อผู้ใช้</label><input id="regUsername"></div>
+<div class="field"><label data-i18n="password">รหัสผ่าน</label><input id="regPassword" type="password"></div>
+<button class="primary full" onclick="registerUser()" data-i18n="registerBtn">สมัครใช้งาน</button>
+<button class="link full" onclick="showScreen('welcome')" data-i18n="back">กลับ</button>
+<div class="message" id="registerMessage"></div>
+</div>
+
+<div id="security" class="screen">
+<h2 data-i18n="secTitle">ตั้งคำถามกู้คืน PIN</h2>
+<div class="field"><label data-i18n="q1">คำถามที่ 1</label>
+<select id="q1"><option data-i18n="q1a">ชื่อสัตว์เลี้ยงแรก?</option><option data-i18n="q1b">ชื่อเมืองที่เกิด?</option><option data-i18n="q1c">อาหารที่ชอบ?</option></select>
+</div>
+<div class="field"><label data-i18n="a1">คำตอบที่ 1</label><input id="a1"></div>
+<div class="field"><label data-i18n="q2">คำถามที่ 2</label>
+<select id="q2"><option data-i18n="q2a">ชื่อเพื่อนสนิท?</option><option data-i18n="q2b">โรงเรียนประถม?</option><option data-i18n="q2c">สีที่ชอบ?</option></select>
+</div>
+<div class="field"><label data-i18n="a2">คำตอบที่ 2</label><input id="a2"></div>
+<button class="primary full" onclick="saveSecurity()" data-i18n="saveSec">บันทึกคำถาม</button>
+<div class="message" id="securityMessage"></div>
+</div>
+
+<div id="setpin" class="screen">
+<h2 data-i18n="setpinTitle">ตั้งรหัส PIN</h2>
+<div class="code">
+<div class="digit" id="s1"></div><div class="digit" id="s2"></div>
+<div class="digit" id="s3"></div><div class="digit" id="s4"></div>
+</div>
+<div class="keypad">
+<button onclick="pinInput('1')">1</button><button onclick="pinInput('2')">2</button><button onclick="pinInput('3')">3</button>
+<button onclick="pinInput('4')">4</button><button onclick="pinInput('5')">5</button><button onclick="pinInput('6')">6</button>
+<button onclick="pinInput('7')">7</button><button onclick="pinInput('8')">8</button><button onclick="pinInput('9')">9</button>
+<button class="danger" onclick="pinClear()">C</button><button onclick="pinInput('0')">0</button><button class="primary" onclick="goConfirm()" data-i18n="confirm">ยืนยัน</button>
+</div>
+<div class="message" id="setpinMessage"></div>
+</div>
+
+<div id="confirmpin" class="screen">
+<h2 data-i18n="confirmTitle">ยืนยันรหัส PIN</h2>
+<div class="code">
+<div class="digit" id="c1"></div><div class="digit" id="c2"></div>
+<div class="digit" id="c3"></div><div class="digit" id="c4"></div>
+</div>
+<div class="keypad">
+<button onclick="confirmInput('1')">1</button><button onclick="confirmInput('2')">2</button><button onclick="confirmInput('3')">3</button>
+<button onclick="confirmInput('4')">4</button><button onclick="confirmInput('5')">5</button><button onclick="confirmInput('6')">6</button>
+<button onclick="confirmInput('7')">7</button><button onclick="confirmInput('8')">8</button><button onclick="confirmInput('9')">9</button>
+<button class="danger" onclick="confirmClear()">C</button><button onclick="confirmInput('0')">0</button><button class="success" onclick="savePin()" data-i18n="save">บันทึก</button>
+</div>
+<div class="message" id="confirmpinMessage"></div>
+</div>
+
+<div id="login" class="screen">
+<h2 data-i18n="loginTitle">เข้าสู่ระบบ</h2>
+<div class="field"><label data-i18n="username">ชื่อผู้ใช้</label><input id="loginUsername"></div>
+<div class="field"><label data-i18n="password">รหัสผ่าน</label><input id="loginPassword" type="password"></div>
+<button class="primary full" onclick="loginUser()" data-i18n="loginBtn">เข้าสู่ระบบ</button>
+<button class="link full" onclick="showForgotPassword()" data-i18n="forgotPass">ลืมรหัสผ่าน?</button>
+<button class="full" onclick="showScreen('welcome')" data-i18n="back">กลับ</button>
+<div class="message" id="loginMessage"></div>
+</div>
+
+<div id="forgotpassword" class="screen">
+<h2 data-i18n="forgotTitle">ลืมรหัสผ่าน</h2>
+<p id="forgotPasswordQuestion"></p>
+<div class="field"><label data-i18n="answer">คำตอบ</label><input id="forgotPasswordAnswer"></div>
+<button class="primary full" onclick="verifyForgotPassword()" data-i18n="verify">ยืนยันตัวตน</button>
+<button class="full" onclick="showScreen('login')" data-i18n="back">กลับ</button>
+<div class="message" id="forgotPasswordMessage"></div>
+</div>
+
+<div id="resetpassword" class="screen">
+<h2 data-i18n="resetPassTitle">ตั้งรหัสผ่านใหม่</h2>
+<div class="field"><label data-i18n="newPass">รหัสผ่านใหม่</label><input id="newPassword" type="password"></div>
+<div class="field"><label data-i18n="confirmNewPass">ยืนยันรหัสผ่านใหม่</label><input id="confirmNewPassword" type="password"></div>
+<button class="primary full" onclick="saveNewPassword()" data-i18n="saveNewPass">บันทึก</button>
+<button class="full" onclick="showScreen('login')" data-i18n="back">กลับ</button>
+<div class="message" id="resetPasswordMessage"></div>
+</div>
+
+<div id="menu" class="screen">
+<div class="greeting" id="greeting"></div>
+<div class="weather">
+<div class="box"><div class="label" data-i18n="date">วันที่</div><div class="value" id="dateText"></div></div>
+<div class="box"><div class="label" data-i18n="temp">อุณหภูมิ</div><div class="value" id="temperature"></div></div>
+<div class="box"><div class="label" data-i18n="weather">สภาพอากาศ</div><div class="value" id="weatherText"></div></div>
+<div class="box"><div class="label" data-i18n="wind">ลม</div><div class="value" id="windText"></div></div>
+</div>
+<h2 data-i18n="menuTitle">เมนูหลัก</h2>
+<div class="menu">
+<button class="primary" onclick="showScreen('unlock')">🔓 <span data-i18n="unlock">ปลดล็อกกล่อง</span></button>
+<button onclick="showScreen('parcel')">📦 <span data-i18n="checkParcel">เช็คพัสดุ</span></button>
+<button onclick="showScreen('boxstatus')">📊 <span data-i18n="boxStatus">สถานะกล่อง</span></button>
+<button onclick="showScreen('changepin')">🔑 <span data-i18n="changePin">เปลี่ยนรหัส PIN</span></button>
+<button onclick="showScreen('settings')">🎨 <span data-i18n="settings">ตั้งค่า</span></button>
+<button class="danger" onclick="logout()">🚪 <span data-i18n="logout">ออกจากระบบ</span></button>
+</div>
+</div>
+
+<div id="unlock" class="screen">
+<h2 data-i18n="unlockTitle">ปลดล็อกกล่อง</h2>
+<div class="code">
+<div class="digit" id="u1"></div><div class="digit" id="u2"></div>
+<div class="digit" id="u3"></div><div class="digit" id="u4"></div>
+</div>
+<div class="keypad">
+<button onclick="unlockInput('1')">1</button><button onclick="unlockInput('2')">2</button><button onclick="unlockInput('3')">3</button>
+<button onclick="unlockInput('4')">4</button><button onclick="unlockInput('5')">5</button><button onclick="unlockInput('6')">6</button>
+<button onclick="unlockInput('7')">7</button><button onclick="unlockInput('8')">8</button><button onclick="unlockInput('9')">9</button>
+<button class="danger" onclick="unlockClear()">C</button><button onclick="unlockInput('0')">0</button><button class="success" onclick="unlockBox()" data-i18n="unlockBtn">ปลดล็อก</button>
+</div>
+<button class="link full" onclick="showForgot()" data-i18n="forgotPin">ลืมรหัส PIN?</button>
+<button class="full" onclick="showScreen('menu')" data-i18n="backMenu">กลับเมนู</button>
+<div class="message" id="unlockMessage"></div>
+</div>
+
+<div id="forgot" class="screen">
+<h2 data-i18n="forgotPinTitle">กู้คืนรหัส PIN</h2>
+<p id="forgotQuestion"></p>
+<div class="field"><label data-i18n="answer">คำตอบ</label><input id="forgotAnswer"></div>
+<button class="primary full" onclick="verifySecurity()" data-i18n="verify">ยืนยันตัวตน</button>
+<button class="full" onclick="showScreen('unlock')" data-i18n="back">กลับ</button>
+<div class="message" id="forgotMessage"></div>
+</div>
+
+<div id="resetpin" class="screen">
+<h2 data-i18n="resetPinTitle">ตั้งรหัส PIN ใหม่</h2>
+<div class="code">
+<div class="digit" id="r1"></div><div class="digit" id="r2"></div>
+<div class="digit" id="r3"></div><div class="digit" id="r4"></div>
+</div>
+<div class="keypad">
+<button onclick="resetInput('1')">1</button><button onclick="resetInput('2')">2</button><button onclick="resetInput('3')">3</button>
+<button onclick="resetInput('4')">4</button><button onclick="resetInput('5')">5</button><button onclick="resetInput('6')">6</button>
+<button onclick="resetInput('7')">7</button><button onclick="resetInput('8')">8</button><button onclick="resetInput('9')">9</button>
+<button class="danger" onclick="resetClear()">C</button><button onclick="resetInput('0')">0</button><button class="success" onclick="saveResetPin()" data-i18n="save">บันทึก</button>
+</div>
+<div class="message" id="resetpinMessage"></div>
+</div>
+
+<div id="parcel" class="screen">
+<h2 data-i18n="parcelTitle">เช็คพัสดุ</h2>
+<div class="box"><div class="label" data-i18n="parcelStatus">สถานะพัสดุ</div><div class="value" id="parcelStatus"></div></div>
+<button class="primary full" onclick="refreshParcel()" data-i18n="refresh">รีเฟรช</button>
+<button class="full" onclick="showScreen('menu')" data-i18n="backMenu">กลับเมนู</button>
+<div class="message" id="parcelMessage"></div>
+</div>
+
+<div id="boxstatus" class="screen">
+<h2 data-i18n="boxTitle">สถานะกล่อง</h2>
+<div class="box"><div class="label" data-i18n="boxStatus">สถานะกล่อง</div><div class="value" id="boxStatus"></div></div>
+<div class="box" style="margin-top:8px"><div class="label" data-i18n="lastUpdate">อัปเดตล่าสุด</div><div class="value" id="lastUpdate"></div></div>
+<button class="primary full" onclick="refreshBox()" data-i18n="refresh">รีเฟรช</button>
+<button class="full" onclick="showScreen('menu')" data-i18n="backMenu">กลับเมนู</button>
+<div class="message" id="boxMessage"></div>
+</div>
+
+<div id="changepin" class="screen">
+<h2 data-i18n="changePinTitle">เปลี่ยนรหัส PIN</h2>
+<div class="code">
+<div class="digit" id="o1"></div><div class="digit" id="o2"></div>
+<div class="digit" id="o3"></div><div class="digit" id="o4"></div>
+</div>
+<div class="keypad">
+<button onclick="oldInput('1')">1</button><button onclick="oldInput('2')">2</button><button onclick="oldInput('3')">3</button>
+<button onclick="oldInput('4')">4</button><button onclick="oldInput('5')">5</button><button onclick="oldInput('6')">6</button>
+<button onclick="oldInput('7')">7</button><button onclick="oldInput('8')">8</button><button onclick="oldInput('9')">9</button>
+<button class="danger" onclick="oldClear()">C</button><button onclick="oldInput('0')">0</button><button class="primary" onclick="verifyOldPin()" data-i18n="verify">ยืนยัน</button>
+</div>
+<button class="link full" onclick="showForgot()" data-i18n="forgotPin">ลืมรหัส PIN?</button>
+<button class="full" onclick="showScreen('menu')" data-i18n="backMenu">กลับเมนู</button>
+<div class="message" id="changepinMessage"></div>
+</div>
+
+<div id="newpin" class="screen">
+<h2 data-i18n="newPinTitle">ตั้งรหัสใหม่</h2>
+<div class="code">
+<div class="digit" id="n1"></div><div class="digit" id="n2"></div>
+<div class="digit" id="n3"></div><div class="digit" id="n4"></div>
+</div>
+<div class="keypad">
+<button onclick="newInput('1')">1</button><button onclick="newInput('2')">2</button><button onclick="newInput('3')">3</button>
+<button onclick="newInput('4')">4</button><button onclick="newInput('5')">5</button><button onclick="newInput('6')">6</button>
+<button onclick="newInput('7')">7</button><button onclick="newInput('8')">8</button><button onclick="newInput('9')">9</button>
+<button class="danger" onclick="newClear()">C</button><button onclick="newInput('0')">0</button><button class="success" onclick="saveNewPin()" data-i18n="save">บันทึก</button>
+</div>
+<div class="message" id="newpinMessage"></div>
+</div>
+
+<div id="settings" class="screen">
+<h2 data-i18n="settingsTitle">ตั้งค่า</h2>
+
+<div class="settings-group">
+<h3>🎨 <span data-i18n="appearance">ธีมและหน้าตา</span></h3>
+<div class="field"><label data-i18n="themeColor">สีธีม</label><input type="color" id="themeColor" value="#38bdf8" oninput="applyTheme()"></div>
+<div class="field"><label data-i18n="themeIntensity">ความเข้มสี</label><input type="range" min="0" max="100" value="60" class="slider" oninput="applyTheme()"></div>
+<div class="field"><label data-i18n="uiScale">ขนาด UI</label><input type="range" min="80" max="140" value="100" class="slider" oninput="applyUi()"></div>
+<div class="field"><label data-i18n="font">ฟอนต์</label>
+<select id="fontSelect" onchange="applyFont()">
+<option value='"Noto Sans Thai",sans-serif'>Noto Sans Thai</option>
+<option value='"Sarabun",sans-serif'>Sarabun</option>
+<option value='"Kanit",sans-serif'>Kanit</option>
+</select>
+</div>
+</div>
+
+<div class="settings-group">
+<h3>🔊 <span data-i18n="sound">เสียงและเพลง</span></h3>
+<div class="field"><label data-i18n="bgm">เพลงพื้นหลัง</label>
+<select id="bgmSelect" onchange="setBgm()">
+<option value="none" data-i18n="none">ปิด</option>
+<option value="happy" data-i18n="bgm1">สนุกร่าเริง</option>
+<option value="chill" data-i18n="bgm2">ฟังลื่นหู</option>
+<option value="cute" data-i18n="bgm3">น่ารัก</option>
+</select>
+</div>
+<div class="field"><label data-i18n="bgmVolume">ระดับเสียงเพลง</label><input type="range" min="0" max="100" value="30" class="slider" oninput="setVolume()"></div>
+<div class="field"><label data-i18n="sfxVolume">ระดับเสียงปุ่ม</label><input type="range" min="0" max="100" value="50" class="slider" oninput="setVolume()"></div>
+</div>
+
+<div class="settings-group">
+<h3>🌐 <span data-i18n="language">ภาษา</span></h3>
+<button class="full" onclick="toggleLang()" data-i18n="switchLang">สลับภาษา ไทย/อังกฤษ</button>
+</div>
+
+<div class="settings-group">
+<h3>👤 <span data-i18n="account">บัญชี</span></h3>
+<button class="full" onclick="showScreen('changepin')" data-i18n="changePin">เปลี่ยนรหัส PIN</button>
+<button class="danger full" onclick="logout()" data-i18n="logout">ออกจากระบบ</button>
+</div>
+
+<div class="settings-group">
+<h3>❓ <span data-i18n="help">วิธีใช้งาน</span></h3>
+<button class="full" onclick="showScreen('help')" data-i18n="help">เปิดหน้าวิธีใช้งาน</button>
+</div>
+
+<button class="full" onclick="showScreen('menu')" data-i18n="backMenu">กลับเมนู</button>
+<div class="message">Postbox Ping</div>
+</div>
+
+<div id="help" class="screen">
+<h2 data-i18n="helpTitle">วิธีใช้งาน</h2>
+<div class="help">
+<b data-i18n="help1">1. สมัครใช้งาน</b><br><span data-i18n="help1d">กรอกข้อมูลและตั้งคำถามกู้คืน PIN</span><br><br>
+<b data-i18n="help2">2. ตั้ง PIN</b><br><span data-i18n="help2d">ตั้งรหัส 4 หลักสำหรับปลดล็อกกล่อง</span><br><br>
+<b data-i18n="help3">3. ปลดล็อก</b><br><span data-i18n="help3d">ใส่ PIN เพื่อเปิดกล่อง</span><br><br>
+<b data-i18n="help4">4. เช็คพัสดุ</b><br><span data-i18n="help4d">ดูว่ามีพัสดุอยู่หรือไม่</span><br><br>
+<b data-i18n="help5">5. ตั้งค่า</b><br><span data-i18n="help5d">เปลี่ยนธีม ฟอนต์ เสียง และ UI</span>
+</div>
+<button class="full" onclick="showScreen('welcome')" data-i18n="back">กลับ</button>
+</div>
+
+<div class="small">Postbox Ping — LIFF Demo</div>
+</div>
+
+<script>
+const I18N={
+th:{loading:"กำลังเชื่อมต่อ LINE...",welcomeTitle:"ยินดีต้อนรับสู่ Postbox Ping",welcomeSub:"ระบบกล่องรับพัสดุอัจฉริยะ",register:"สมัครใช้งาน",login:"เข้าสู่ระบบ",help:"วิธีใช้งาน",regTitle:"ลงทะเบียนผู้ใช้",nickname:"ชื่อเล่น",age:"อายุ",birthdate:"วันเกิด",phone:"เบอร์โทร",username:"ชื่อผู้ใช้",password:"รหัสผ่าน",registerBtn:"สมัครใช้งาน",back:"กลับ",secTitle:"ตั้งคำถามกู้คืน PIN",q1:"คำถามที่ 1",q1a:"ชื่อสัตว์เลี้ยงแรก?",q1b:"ชื่อเมืองที่เกิด?",q1c:"อาหารที่ชอบ?",a1:"คำตอบที่ 1",q2:"คำถามที่ 2",q2a:"ชื่อเพื่อนสนิท?",q2b:"โรงเรียนประถม?",q2c:"สีที่ชอบ?",a2:"คำตอบที่ 2",saveSec:"บันทึกคำถาม",setpinTitle:"ตั้งรหัส PIN",confirm:"ยืนยัน",confirmTitle:"ยืนยันรหัส PIN",save:"บันทึก",loginTitle:"เข้าสู่ระบบ",loginBtn:"เข้าสู่ระบบ",forgotPass:"ลืมรหัสผ่าน?",forgotTitle:"ลืมรหัสผ่าน",answer:"คำตอบ",verify:"ยืนยันตัวตน",resetPassTitle:"ตั้งรหัสผ่านใหม่",newPass:"รหัสผ่านใหม่",confirmNewPass:"ยืนยันรหัสผ่านใหม่",saveNewPass:"บันทึก",menuTitle:"เมนูหลัก",unlock:"ปลดล็อกกล่อง",checkParcel:"เช็คพัสดุ",boxStatus:"สถานะกล่อง",changePin:"เปลี่ยนรหัส PIN",settings:"ตั้งค่า",logout:"ออกจากระบบ",unlockTitle:"ปลดล็อกกล่อง",unlockBtn:"ปลดล็อก",forgotPin:"ลืมรหัส PIN?",backMenu:"กลับเมนู",forgotPinTitle:"กู้คืนรหัส PIN",resetPinTitle:"ตั้งรหัส PIN ใหม่",parcelTitle:"เช็คพัสดุ",parcelStatus:"สถานะพัสดุ",refresh:"รีเฟรช",boxTitle:"สถานะกล่อง",lastUpdate:"อัปเดตล่าสุด",changePinTitle:"เปลี่ยนรหัส PIN",newPinTitle:"ตั้งรหัสใหม่",settingsTitle:"ตั้งค่า",appearance:"ธีมและหน้าตา",themeColor:"สีธีม",themeIntensity:"ความเข้มสี",uiScale:"ขนาด UI",font:"ฟอนต์",sound:"เสียงและเพลง",bgm:"เพลงพื้นหลัง",none:"ปิด",bgm1:"สนุกร่าเริง",bgm2:"ฟังลื่นหู",bgm3:"น่ารัก",bgmVolume:"ระดับเสียงเพลง",sfxVolume:"ระดับเสียงปุ่ม",language:"ภาษา",switchLang:"สลับภาษา ไทย/อังกฤษ",account:"บัญชี",helpTitle:"วิธีใช้งาน",help1:"1. สมัครใช้งาน",help1d:"กรอกข้อมูลและตั้งคำถามกู้คืน PIN",help2:"2. ตั้ง PIN",help2d:"ตั้งรหัส 4 หลักสำหรับปลดล็อกกล่อง",help3:"3. ปลดล็อก",help3d:"ใส่ PIN เพื่อเปิดกล่อง",help4:"4. เช็คพัสดุ",help4d:"ดูว่ามีพัสดุอยู่หรือไม่",help5:"5. ตั้งค่า",help5d:"เปลี่ยนธีม ฟอนต์ เสียง และ UI",date:"วันที่",temp:"อุณหภูมิ",weather:"สภาพอากาศ",wind:"ลม"},
+en:{loading:"Connecting to LINE...",welcomeTitle:"Welcome to Postbox Ping",welcomeSub:"Smart parcel box system",register:"Register",login:"Log in",help:"How to use",regTitle:"User registration",nickname:"Nickname",age:"Age",birthdate:"Birthdate",phone:"Phone",username:"Username",password:"Password",registerBtn:"Register",back:"Back",secTitle:"Set recovery questions",q1:"Question 1",q1a:"First pet name?",q1b:"Birth city?",q1c:"Favorite food?",a1:"Answer 1",q2:"Question 2",q2a:"Best friend name?",q2b:"Primary school?",q2c:"Favorite color?",a2:"Answer 2",saveSec:"Save questions",setpinTitle:"Set PIN",confirm:"Confirm",confirmTitle:"Confirm PIN",save:"Save",loginTitle:"Log in",loginBtn:"Log in",forgotPass:"Forgot password?",forgotTitle:"Forgot password",answer:"Answer",verify:"Verify",resetPassTitle:"Set new password",newPass:"New password",confirmNewPass:"Confirm new password",saveNewPass:"Save",menuTitle:"Main menu",unlock:"Unlock box",checkParcel:"Check parcel",boxStatus:"Box status",changePin:"Change PIN",settings:"Settings",logout:"Log out",unlockTitle:"Unlock box",unlockBtn:"Unlock",forgotPin:"Forgot PIN?",backMenu:"Back to menu",forgotPinTitle:"Recover PIN",resetPinTitle:"Set new PIN",parcelTitle:"Check parcel",parcelStatus:"Parcel status",refresh:"Refresh",boxTitle:"Box status",lastUpdate:"Last update",changePinTitle:"Change PIN",newPinTitle:"Set new PIN",settingsTitle:"Settings",appearance:"Appearance",themeColor:"Theme color",themeIntensity:"Color intensity",uiScale:"UI scale",font:"Font",sound:"Sound & music",bgm:"Background music",none:"Off",bgm1:"Happy",bgm2:"Smooth",bgm3:"Cute",bgmVolume:"Music volume",sfxVolume:"Button volume",language:"Language",switchLang:"Switch Thai/English",account:"Account",helpTitle:"How to use",help1:"1. Register",help1d:"Fill in your details and set recovery questions",help2:"2. Set PIN",help2d:"Set a 4-digit PIN to unlock the box",help3:"3. Unlock",help3d:"Enter your PIN to open the box",help4:"4. Check parcel",help4d:"See whether a parcel is inside",help5:"5. Settings",help5d:"Change theme, font, sound, and UI",date:"Date",temp:"Temperature",weather:"Weather",wind:"Wind"}
+};
+let lang="th";
+const GREETINGS_TH=["วันนี้เป็นวันที่ดี อย่าลืมรับพัสดุ!","สวัสดี! กล่องพัสดุพร้อมใช้งาน","อย่าลืมเช็คพัสดุก่อนออกจากบ้าน","ขอให้วันนี้ราบรื่นและพัสดุปลอดภัย","Postbox Ping พร้อมช่วยดูแลพัสดุของคุณ","อย่าลืมเก็บพัสดุจากกล่องนะ!","ขอให้วันนี้มีข่าวดีจากพัสดุของคุณ","ตรวจสถานะกล่องได้ทุกเมื่อ","ระบบพร้อมช่วยคุณเปิดกล่องอย่างปลอดภัย","อย่าลืมรหัส PIN นะ แต่ถ้าลืมก็กู้คืนได้","ขอบคุณที่ใช้ Postbox Ping","พัสดุปลอดภัยเมื่อคุณปลดล็อกด้วยรหัสของตัวเอง","วันนี้อากาศเป็นอย่างไร? อย่าลืมดูก่อนออกไปรับพัสดุ","Postbox Ping ช่วยให้การรับพัสดุง่ายขึ้น","หากมีพัสดุเข้า ระบบจะแจ้งเตือนผ่าน LINE","เช็คพัสดุก่อนออกจากบ้านเพื่อความสบายใจ","ขอให้วันนี้เต็มไปด้วยพัสดุดี ๆ","ระบบพร้อมช่วยคุณดูแลพัสดุ","อย่าลืมรับพัสดุก่อนกล่องเต็มนะ!","วันนี้เป็นวันที่ดีสำหรับการรับพัสดุ"];
+const GREETINGS_EN=["Today is a great day. Don't forget your parcel!","Hello! Your parcel box is ready.","Check your parcel before leaving home.","Have a smooth day and safe parcels.","Postbox Ping is ready to help.","Don't forget to collect your parcel!","Hope today brings good parcel news.","Check box status anytime.","The system is ready to unlock safely.","Don't forget your PIN. You can recover it.","Thanks for using Postbox Ping.","Parcels are safe with your own PIN.","How's the weather today? Check before going out.","Postbox Ping makes parcel pickup easier.","If a parcel arrives, we'll notify you via LINE.","Check parcels before leaving home.","Have a parcel-filled day!","The system is ready to help.","Don't forget to collect parcels before the box is full.","Today is a great day for parcels!"];
+
+let currentUser=null,setupPin="",confirmPinValue="",unlockPin="",oldPin="",newPin="",resetPin="";
+let forgotPasswordUser=null,bgmType="none",bgmVolume=.3,sfxVolume=.5;
+
+function t(key){return I18N[lang][key]||key}
+function applyLang(){document.querySelectorAll("[data-i18n]").forEach(el=>{el.textContent=t(el.dataset.i18n)});document.documentElement.lang=lang}
+function toggleLang(){lang=lang==="th"?"en":"th";applyLang();if(currentUser)updateMenu()}
+
+const clickSound=new Audio("sounds/click.mp3");
+clickSound.volume=.5;
+function playClick(){try{clickSound.currentTime=0;clickSound.play()}catch(e){}}
+document.addEventListener("click",e=>{if(e.target.tagName==="BUTTON")playClick()});
+
+const bgm1=new Audio("sounds/bgm1.mp3");
+const bgm2=new Audio("sounds/bgm2.mp3");
+const bgm3=new Audio("sounds/bgm3.mp3");
+let currentBgm=null;
+function startBgm(type){stopBgm();if(type==="none")return;if(type==="happy")currentBgm=bgm1;if(type==="chill")currentBgm=bgm2;if(type==="cute")currentBgm=bgm3;if(currentBgm){currentBgm.loop=true;currentBgm.volume=bgmVolume;currentBgm.play()}}
+function stopBgm(){if(currentBgm){currentBgm.pause();currentBgm.currentTime=0;currentBgm=null}}
+function setBgm(){bgmType=document.getElementById("bgmSelect").value;startBgm(bgmType)}
+function setVolume(){bgmVolume=document.getElementById("bgmVolume").value/100;sfxVolume=document.getElementById("sfxVolume").value/100;clickSound.volume=sfxVolume;if(currentBgm)currentBgm.volume=bgmVolume}
+
+function drawBg(){const c=document.getElementById("bg");const ctx=c.getContext("2d");c.width=innerWidth;c.height=innerHeight;let t=0;function loop(){ctx.clearRect(0,0,c.width,c.height);const accent=getComputedStyle(document.body).getPropertyValue("--accent");ctx.strokeStyle=accent;ctx.lineWidth=1.5;for(let i=0;i<8;i++){ctx.beginPath();ctx.arc(c.width/2,c.height/2,60+i*40+Math.sin(t+i)*10,0,Math.PI*2);ctx.stroke()}t+=.02;requestAnimationFrame(loop)}loop()}
+
+function applyTheme(){const color=document.getElementById("themeColor").value;const intensity=document.getElementById("themeIntensity").value/100;document.body.style.setProperty("--accent",color);document.body.style.setProperty("--accent2",color);document.body.style.filter=`saturate(${1+intensity})`}
+function applyUi(){document.body.style.setProperty("--ui",document.getElementById("uiScale").value/100)}
+function applyFont(){document.body.style.setProperty("--font",document.getElementById("fontSelect").value)}
+
+function openSettings(){showScreen("settings")}
+function showHelp(){showScreen("help")}
+
+async function initLiff(){
+document.getElementById("loading").classList.remove("active");
+showScreen("welcome");
+applyLang();
+try{
+await Promise.race([
+liff.init({liffId:"2012709163-l8Pbt2Ad"}),
+new Promise((_,reject)=>setTimeout(()=>reject(new Error("LIFF timeout")),4000))
+]);
+if(liff.isLoggedIn()){
+const profile=await liff.getProfile();
+currentUser={lineUserId:profile.userId,displayName:profile.displayName||"User",username:"",nickname:"",age:"",birthdate:"",phone:"",passwordHash:"",security:null,pinHash:"",hasParcel:false,boxLocked:true};
+setMessage("welcomeMessage","เชื่อมต่อ LINE สำเร็จ","success");
+}else{
+setMessage("welcomeMessage","ยังไม่ได้ล็อกอิน LINE","");
+}
+}catch(e){
+console.error("LIFF error:",e);
+currentUser={lineUserId:"demo-"+Date.now(),displayName:"Demo User",username:"",nickname:"",age:"",birthdate:"",phone:"",passwordHash:"",security:null,pinHash:"",hasParcel:false,boxLocked:true};
+setMessage("welcomeMessage","โหมดทดสอบ: ยังไม่ได้เชื่อม LINE","error");
+}
+}
+
+function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");if(id==="menu")updateMenu()}
+function setMessage(id,text,type){const m=document.getElementById(id);m.textContent=text;m.className="message";if(type)m.classList.add(type)}
+function getUsers(){return JSON.parse(localStorage.getItem("postbox_users")||"{}")}
+function saveUsers(u){localStorage.setItem("postbox_users",JSON.stringify(u))}
+function saveCurrentUser(){const u=getUsers();u[currentUser.lineUserId]=currentUser;saveUsers(u)}
+async function hashText(text){const data=new TextEncoder().encode(text);const digest=await crypto.subtle.digest("SHA-256",data);return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,"0")).join("")}
+
+function registerUser(){const nickname=document.getElementById("regNickname").value.trim();const age=document.getElementById("regAge").value;const birthdate=document.getElementById("regBirthdate").value;const phone=document.getElementById("regPhone").value.trim();const username=document.getElementById("regUsername").value.trim();const password=document.getElementById("regPassword").value;if(!nickname||!age||!birthdate||!phone||!username||password.length<6){setMessage("registerMessage",lang==="th"?"กรุณากรอกข้อมูลให้ครบ":"Please fill all fields","error");return}const users=getUsers();if(Object.values(users).some(u=>u.username===username)){setMessage("registerMessage",lang==="th"?"Username นี้ถูกใช้แล้ว":"Username already exists","error");return}currentUser.username=username;currentUser.nickname=nickname;currentUser.age=age;currentUser.birthdate=birthdate;currentUser.phone=phone;currentUser.passwordHash=password;saveCurrentUser();showScreen("security");setMessage("securityMessage",lang==="th"?"สมัครสำเร็จ":"Registered successfully","success")}
+
+function saveSecurity(){const q1=document.getElementById("q1").value;const a1=document.getElementById("a1").value.trim();const q2=document.getElementById("q2").value;const a2=document.getElementById("a2").value.trim();if(!a1||!a2){setMessage("securityMessage",lang==="th"?"กรุณากรอกคำตอบ":"Please fill answers","error");return}currentUser.security={q1,a1:a1.toLowerCase(),q2,a2:a2.toLowerCase()};saveCurrentUser();setupPin="";renderCode("s",setupPin);showScreen("setpin");setMessage("setpinMessage",lang==="th"?"บันทึกคำถามสำเร็จ":"Questions saved","success")}
+
+function renderCode(prefix,value){for(let i=1;i<=4;i++){const box=document.getElementById(prefix+i);const digit=value[i-1]||"";box.textContent=digit;box.classList.toggle("filled",digit!=="")}}
+function pinInput(v){if(setupPin.length>=4)return;setupPin+=v;renderCode("s",setupPin);setMessage("setpinMessage",lang==="th"?`ใส่รหัสแล้ว ${setupPin.length}/4`:`Entered ${setupPin.length}/4`,"")}
+function pinClear(){setupPin="";renderCode("s",setupPin);setMessage("setpinMessage",lang==="th"?"ล้างรหัสแล้ว":"Cleared","")}
+function goConfirm(){if(setupPin.length!==4){setMessage("setpinMessage",lang==="th"?"กรุณาใส่รหัสให้ครบ":"Please enter 4 digits","error");return}confirmPinValue="";renderCode("c",confirmPinValue);showScreen("confirmpin");setMessage("confirmpinMessage",lang==="th"?"ใส่รหัสยืนยัน":"Confirm PIN","")}
+function confirmInput(v){if(confirmPinValue.length>=4)return;confirmPinValue+=v;renderCode("c",confirmPinValue);setMessage("confirmpinMessage",lang==="th"?`ใส่รหัสยืนยันแล้ว ${confirmPinValue.length}/4`:`Entered ${confirmPinValue.length}/4`,"")}
+function confirmClear(){confirmPinValue="";renderCode("c",confirmPinValue);setMessage("confirmpinMessage",lang==="th"?"ล้างรหัสยืนยัน":"Cleared","")}
+async function savePin(){if(confirmPinValue.length!==4){setMessage("confirmpinMessage",lang==="th"?"กรุณาใส่รหัสให้ครบ":"Please enter 4 digits","error");return}if(setupPin!==confirmPinValue){setMessage("confirmpinMessage",lang==="th"?"รหัสไม่ตรงกัน":"PINs do not match","error");return}currentUser.pinHash=await hashText(setupPin);saveCurrentUser();setupPin="";confirmPinValue="";renderCode("s","");renderCode("c","");showScreen("login");setMessage("loginMessage",lang==="th"?"ตั้ง PIN สำเร็จ":"PIN set successfully","success")}
+
+async function loginUser(){const username=document.getElementById("loginUsername").value.trim();const password=document.getElementById("loginPassword").value;const users=getUsers();const user=Object.values(users).find(u=>u.username===username);if(!user){setMessage("loginMessage",lang==="th"?"ไม่พบบัญชี":"Account not found","error");return}if(user.passwordHash!==password){setMessage("loginMessage",lang==="th"?"รหัสผ่านไม่ถูกต้อง":"Wrong password","error");return}currentUser=user;saveCurrentUser();if(!currentUser.pinHash){setupPin="";renderCode("s",setupPin);showScreen("setpin");setMessage("setpinMessage",lang==="th"?"กรุณาตั้ง PIN":"Please set PIN","error");return}showScreen("menu")}
+
+function showForgotPassword(){const username=document.getElementById("loginUsername").value.trim();const users=getUsers();const user=Object.values(users).find(u=>u.username===username);if(!user||!user.security){setMessage("loginMessage",lang==="th"?"กรุณากรอก Username":"Please enter username","error");return}forgotPasswordUser=user;document.getElementById("forgotPasswordQuestion").textContent=user.security.q1;document.getElementById("forgotPasswordAnswer").value="";setMessage("forgotPasswordMessage",lang==="th"?"กรุณาตอบคำถาม":"Please answer","");showScreen("forgotpassword")}
+function verifyForgotPassword(){const answer=document.getElementById("forgotPasswordAnswer").value.trim().toLowerCase();if(answer===forgotPasswordUser.security.a1){document.getElementById("newPassword").value="";document.getElementById("confirmNewPassword").value="";setMessage("resetPasswordMessage",lang==="th"?"ยืนยันตัวตนสำเร็จ":"Verified successfully","success");showScreen("resetpassword")}else{setMessage("forgotPasswordMessage",lang==="th"?"คำตอบไม่ถูกต้อง":"Wrong answer","error")}}
+async function saveNewPassword(){const np=document.getElementById("newPassword").value;const cp=document.getElementById("confirmNewPassword").value;if(np.length<6){setMessage("resetPasswordMessage",lang==="th"?"รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร":"Password must be at least 6 characters","error");return}if(np!==cp){setMessage("resetPasswordMessage",lang==="th"?"รหัสผ่านไม่ตรงกัน":"Passwords do not match","error");return}forgotPasswordUser.passwordHash=np;const users=getUsers();users[forgotPasswordUser.lineUserId]=forgotPasswordUser;saveUsers(users);setMessage("loginMessage",lang==="th"?"เปลี่ยนรหัสผ่านสำเร็จ":"Password changed successfully","success");showScreen("login")}
+
+function updateMenu(){const greetings=lang==="th"?GREETINGS_TH:GREETINGS_EN;document.getElementById("greeting").textContent="👋 "+(currentUser.nickname||currentUser.displayName)+"! "+greetings[Math.floor(Math.random()*greetings.length)];document.getElementById("dateText").textContent=new Date().toLocaleDateString(lang==="th"?"th-TH":"en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"});loadWeather()}
+
+async function loadWeather(){document.getElementById("temperature").textContent="...";document.getElementById("weatherText").textContent="...";document.getElementById("windText").textContent="...";try{const pos=await new Promise((res,rej)=>navigator.geolocation.getCurrentPosition(res,rej,{timeout:5000}));const lat=pos.coords.latitude,lon=pos.coords.longitude;const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);const d=await r.json();updateWeather(d)}catch(e){try{const r=await fetch("https://api.open-meteo.com/v1/forecast?latitude=13.7563&longitude=100.5018&current_weather=true");const d=await r.json();updateWeather(d)}catch(e2){document.getElementById("temperature").textContent="-";document.getElementById("weatherText").textContent="-";document.getElementById("windText").textContent="-"}}}
+function updateWeather(d){const w=d.current_weather;document.getElementById("temperature").textContent=Math.round(w.temperature)+"°C";document.getElementById("weatherText").textContent=w.weathercode<3?(lang==="th"?"แดดออก":"Sunny"):w.weathercode<50?(lang==="th"?"เมฆมาก":"Cloudy"):(lang==="th"?"ฝนตก":"Rain");document.getElementById("windText").textContent=Math.round(w.windspeed)+" km/h"}
+
+function unlockInput(v){if(unlockPin.length>=4)return;unlockPin+=v;renderCode("u",unlockPin);setMessage("unlockMessage",lang==="th"?`ใส่รหัสแล้ว ${unlockPin.length}/4`:`Entered ${unlockPin.length}/4`,"")}
+function unlockClear(){unlockPin="";renderCode("u",unlockPin);setMessage("unlockMessage",lang==="th"?"ล้างรหัสแล้ว":"Cleared","")}
+async function unlockBox(){if(unlockPin.length!==4){setMessage("unlockMessage",lang==="th"?"กรุณาใส่รหัสให้ครบ":"Please enter 4 digits","error");return}const hash=await hashText(unlockPin);if(hash===currentUser.pinHash){currentUser.boxLocked=false;saveCurrentUser();setMessage("unlockMessage",lang==="th"?"ปลดล็อกสำเร็จ (โหมดทดสอบ)":"Unlocked successfully (demo)","success");unlockPin="";renderCode("u","");setTimeout(()=>{currentUser.boxLocked=true;saveCurrentUser();setMessage("unlockMessage",lang==="th"?"กล่องถูกล็อกอีกครั้ง":"Box locked again","")},5000)}else{setMessage("unlockMessage",lang==="th"?"รหัสไม่ถูกต้อง":"Wrong PIN","error");unlockPin="";renderCode("u","")}}
+
+function showForgot(){document.getElementById("forgotQuestion").textContent=currentUser.security.q1;document.getElementById("forgotAnswer").value="";setMessage("forgotMessage",lang==="th"?"กรุณาตอบคำถาม":"Please answer","");showScreen("forgot")}
+function verifySecurity(){const answer=document.getElementById("forgotAnswer").value.trim().toLowerCase();if(answer===currentUser.security.a1){resetPin="";renderCode("r",resetPin);showScreen("resetpin");setMessage("resetpinMessage",lang==="th"?"ยืนยันตัวตนสำเร็จ":"Verified successfully","success")}else{setMessage("forgotMessage",lang==="th"?"คำตอบไม่ถูกต้อง":"Wrong answer","error")}}
+function resetInput(v){if(resetPin.length>=4)return;resetPin+=v;renderCode("r",resetPin);setMessage("resetpinMessage",lang==="th"?`ใส่รหัสใหม่แล้ว ${resetPin.length}/4`:`Entered ${resetPin.length}/4`,"")}
+function resetClear(){resetPin="";renderCode("r",resetPin);setMessage("resetpinMessage",lang==="th"?"ล้างรหัสใหม่แล้ว":"Cleared","")}
+async function saveResetPin(){if(resetPin.length!==4){setMessage("resetpinMessage",lang==="th"?"กรุณาใส่รหัสให้ครบ":"Please enter 4 digits","error");return}currentUser.pinHash=await hashText(resetPin);saveCurrentUser();resetPin="";renderCode("r","");showScreen("menu")}
+
+function refreshParcel(){document.getElementById("parcelStatus").textContent=currentUser.hasParcel?(lang==="th"?"มีพัสดุอยู่":"Parcel inside"):(lang==="th"?"ไม่มีพัสดุ":"No parcel");setMessage("parcelMessage",lang==="th"?"รีเฟรชสถานะแล้ว":"Refreshed","success")}
+function refreshBox(){document.getElementById("boxStatus").textContent=currentUser.boxLocked?(lang==="th"?"ล็อกอยู่":"Locked"):(lang==="th"?"เปิดอยู่":"Open");document.getElementById("lastUpdate").textContent=new Date().toLocaleString(lang==="th"?"th-TH":"en-US");setMessage("boxMessage",lang==="th"?"รีเฟรชสถานะแล้ว":"Refreshed","success")}
+
+function oldInput(v){if(oldPin.length>=4)return;oldPin+=v;renderCode("o",oldPin);setMessage("changepinMessage",lang==="th"?`ใส่รหัสเดิมแล้ว ${oldPin.length}/4`:`Entered ${oldPin.length}/4`,"")}
+function oldClear(){oldPin="";renderCode("o",oldPin);setMessage("changepinMessage",lang==="th"?"ล้างรหัสเดิมแล้ว":"Cleared","")}
+async function verifyOldPin(){if(oldPin.length!==4){setMessage("changepinMessage",lang==="th"?"กรุณาใส่รหัสให้ครบ":"Please enter 4 digits","error");return}const hash=await hashText(oldPin);if(hash===currentUser.pinHash){newPin="";renderCode("n",newPin);showScreen("newpin");setMessage("newpinMessage",lang==="th"?"ยืนยันรหัสเดิมสำเร็จ":"Old PIN verified","success")}else{setMessage("changepinMessage",lang==="th"?"รหัสเดิมไม่ถูกต้อง":"Wrong old PIN","error");oldPin="";renderCode("o","")}}
+function newInput(v){if(newPin.length>=4)return;newPin+=v;renderCode("n",newPin);setMessage("newpinMessage",lang==="th"?`ใส่รหัสใหม่แล้ว ${newPin.length}/4`:`Entered ${newPin.length}/4`,"")}
+function newClear(){newPin="";renderCode("n",newPin);setMessage("newpinMessage",lang==="th"?"ล้างรหัสใหม่แล้ว":"Cleared","")}
+async function saveNewPin(){if(newPin.length!==4){setMessage("newpinMessage",lang==="th"?"กรุณาใส่รหัสให้ครบ":"Please enter 4 digits","error");return}currentUser.pinHash=await hashText(newPin);saveCurrentUser();newPin="";renderCode("n","");showScreen("menu")}
+
+function setTheme(theme){document.body.className=theme;localStorage.setItem("postbox_theme",theme)}
+function logout(){currentUser=null;showScreen("welcome")}
+
+document.addEventListener("DOMContentLoaded",()=>{applyLang();drawBg();initLiff()});
+</script>
+</body>
+</html>
