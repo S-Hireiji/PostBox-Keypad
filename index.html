@@ -6,14 +6,10 @@
 <title>Smart Box — ระบบกล่องพัสดุ</title>
 <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
-:root{
-  --bg:#0f172a; --card:#1e293b; --text:#e2e8f0; --muted:#94a3b8;
-  --line:#334155; --primary:#2563eb; --primary-text:#fff;
-  --success:#166534; --success-text:#dcfce7; --danger:#7f1d1d; --danger-text:#fecaca;
-}
-body.theme-light{--bg:#f1f5f9; --card:#ffffff; --text:#0f172a; --muted:#64748b; --line:#cbd5e1; --primary:#2563eb; --primary-text:#fff; --success:#15803d; --success-text:#dcfce7; --danger:#b91c1c; --danger-text:#fee2e2}
-body.theme-blue{--bg:#0c4a6e; --card:#075985; --text:#e0f2fe; --muted:#bae6fd; --line:#0ea5e9; --primary:#0284c7; --primary-text:#fff; --success:#15803d; --success-text:#dcfce7; --danger:#b91c1c; --danger-text:#fee2e2}
-body.theme-purple{--bg:#2e1065; --card:#4c1d95; --text:#ede9fe; --muted:#c4b5fd; --line:#7c3aed; --primary:#7c3aed; --primary-text:#fff; --success:#15803d; --success-text:#dcfce7; --danger:#b91c1c; --danger-text:#fee2e2}
+:root{--bg:#0f172a;--card:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--line:#334155;--primary:#2563eb;--primary-text:#fff;--success:#166534;--success-text:#dcfce7;--danger:#7f1d1d;--danger-text:#fecaca}
+body.theme-light{--bg:#f1f5f9;--card:#fff;--text:#0f172a;--muted:#64748b;--line:#cbd5e1;--primary:#2563eb;--primary-text:#fff;--success:#15803d;--success-text:#dcfce7;--danger:#b91c1c;--danger-text:#fee2e2}
+body.theme-blue{--bg:#0c4a6e;--card:#075985;--text:#e0f2fe;--muted:#bae6fd;--line:#0ea5e9;--primary:#0284c7;--primary-text:#fff;--success:#15803d;--success-text:#dcfce7;--danger:#b91c1c;--danger-text:#fee2e2}
+body.theme-purple{--bg:#2e1065;--card:#4c1d95;--text:#ede9fe;--muted:#c4b5fd;--line:#7c3aed;--primary:#7c3aed;--primary-text:#fff;--success:#15803d;--success-text:#dcfce7;--danger:#b91c1c;--danger-text:#fee2e2}
 *{box-sizing:border-box}
 body{margin:0;min-height:100vh;font-family:"Segoe UI",Tahoma,sans-serif;background:var(--bg);color:var(--text);display:flex;align-items:center;justify-content:center;padding:16px;transition:background .3s,color .3s}
 .card{width:100%;max-width:400px;background:var(--card);border-radius:20px;padding:22px 18px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
@@ -145,8 +141,28 @@ button:active{transform:scale(.95)}
     <div class="field"><label>Username</label><input id="loginUsername"></div>
     <div class="field"><label>Password</label><input id="loginPassword" type="password"></div>
     <button class="primary full" onclick="loginUser()">เข้าสู่ระบบ</button>
-    <button class="link full" onclick="showScreen('welcome')">กลับหน้าแรก</button>
+    <button class="link full" onclick="showForgotPassword()">ลืมรหัสผ่าน?</button>
+    <button class="full" onclick="showScreen('welcome')">กลับหน้าแรก</button>
     <div class="message" id="loginMessage">กรุณากรอกข้อมูล</div>
+  </div>
+
+  <div id="forgotpassword" class="screen">
+    <h1>ลืมรหัสผ่าน</h1>
+    <p id="forgotPasswordQuestion">-</p>
+    <div class="field"><label>คำตอบ</label><input id="forgotPasswordAnswer"></div>
+    <button class="primary full" onclick="verifyForgotPassword()">ยืนยันตัวตน</button>
+    <button class="full" onclick="showScreen('login')">กลับ</button>
+    <div class="message" id="forgotPasswordMessage">กรุณาตอบคำถาม</div>
+  </div>
+
+  <div id="resetpassword" class="screen">
+    <h1>ตั้งรหัสผ่านใหม่</h1>
+    <p>คุณยืนยันตัวตนสำเร็จแล้ว</p>
+    <div class="field"><label>รหัสผ่านใหม่</label><input id="newPassword" type="password" placeholder="อย่างน้อย 6 ตัวอักษร"></div>
+    <div class="field"><label>ยืนยันรหัสผ่านใหม่</label><input id="confirmNewPassword" type="password" placeholder="ใส่รหัสผ่านใหม่อีกครั้ง"></div>
+    <button class="primary full" onclick="saveNewPassword()">บันทึกรหัสผ่านใหม่</button>
+    <button class="full" onclick="showScreen('login')">กลับ</button>
+    <div class="message" id="resetPasswordMessage">กรุณากรอกรหัสผ่านใหม่</div>
   </div>
 
   <div id="menu" class="screen">
@@ -179,7 +195,7 @@ button:active{transform:scale(.95)}
       <button onclick="unlockInput('7')">7</button><button onclick="unlockInput('8')">8</button><button onclick="unlockInput('9')">9</button>
       <button class="danger" onclick="unlockClear()">C</button><button onclick="unlockInput('0')">0</button><button class="success" onclick="unlockBox()">ปลดล็อก</button>
     </div>
-    <button class="link full" onclick="showScreen('forgot')">ลืมรหัส PIN?</button>
+    <button class="link full" onclick="showForgot()">ลืมรหัส PIN?</button>
     <button class="full" onclick="showScreen('menu')">กลับเมนู</button>
     <div class="message" id="unlockMessage">ยังไม่ได้ปลดล็อก</div>
   </div>
@@ -241,7 +257,7 @@ button:active{transform:scale(.95)}
       <button onclick="oldInput('7')">7</button><button onclick="oldInput('8')">8</button><button onclick="oldInput('9')">9</button>
       <button class="danger" onclick="oldClear()">C</button><button onclick="oldInput('0')">0</button><button class="primary" onclick="verifyOldPin()">ยืนยัน</button>
     </div>
-    <button class="link full" onclick="showScreen('forgot')">ลืมรหัส PIN?</button>
+    <button class="link full" onclick="showForgot()">ลืมรหัส PIN?</button>
     <button class="full" onclick="showScreen('menu')">กลับเมนู</button>
     <div class="message" id="changepinMessage">ใส่รหัสเดิม 4 หลัก</div>
   </div>
@@ -304,6 +320,7 @@ const GREETINGS = [
 
 let currentUser = null;
 let setupPin = "", confirmPinValue = "", unlockPin = "", oldPin = "", newPin = "", resetPin = "";
+let forgotPasswordUser = null;
 
 async function initLiff() {
   try {
@@ -313,23 +330,22 @@ async function initLiff() {
     currentUser = {
       lineUserId: profile.userId,
       displayName: profile.displayName || "ผู้ใช้ LINE",
-      username: "",
-      nickname: "",
-      age: "",
-      birthdate: "",
-      phone: "",
-      passwordHash: "",
-      security: null,
-      pinHash: "",
-      hasParcel: false,
-      boxLocked: true
+      username: "", nickname: "", age: "", birthdate: "", phone: "",
+      passwordHash: "", security: null, pinHash: "",
+      hasParcel: false, boxLocked: true
     };
-    document.getElementById("loading").classList.remove("active");
-    showScreen("welcome");
   } catch (error) {
-    document.getElementById("loading").classList.remove("active");
-    showScreen("welcome");
+    console.error("LIFF init failed:", error);
+    currentUser = {
+      lineUserId: "demo-" + Date.now(),
+      displayName: "ผู้ใช้ทดสอบ",
+      username: "", nickname: "", age: "", birthdate: "", phone: "",
+      passwordHash: "", security: null, pinHash: "",
+      hasParcel: false, boxLocked: true
+    };
   }
+  document.getElementById("loading").classList.remove("active");
+  showScreen("welcome");
 }
 
 function showScreen(id) {
@@ -379,7 +395,8 @@ function registerUser() {
   }
 
   const users = getUsers();
-  if (users[username]) {
+  const exists = Object.values(users).some(u => u.username === username);
+  if (exists) {
     setMessage("registerMessage", "Username นี้ถูกใช้แล้ว", "error");
     return;
   }
@@ -489,14 +506,19 @@ async function loginUser() {
   const users = getUsers();
   const user = Object.values(users).find(u => u.username === username);
 
-  if (!user || user.passwordHash !== password) {
-    setMessage("loginMessage", "Username หรือ Password ไม่ถูกต้อง", "error");
+  if (!user) {
+    setMessage("loginMessage", "ไม่พบบัญชีนี้", "error");
+    return;
+  }
+  if (user.passwordHash !== password) {
+    setMessage("loginMessage", "รหัสผ่านไม่ถูกต้อง", "error");
     return;
   }
 
-  if (!user.pinHash) {
-    currentUser = user;
-    saveCurrentUser();
+  currentUser = user;
+  saveCurrentUser();
+
+  if (!currentUser.pinHash) {
     setupPin = "";
     renderCode("s", setupPin);
     showScreen("setpin");
@@ -504,9 +526,58 @@ async function loginUser() {
     return;
   }
 
-  currentUser = user;
-  saveCurrentUser();
   showScreen("menu");
+}
+
+function showForgotPassword() {
+  const username = document.getElementById("loginUsername").value.trim();
+  const users = getUsers();
+  const user = Object.values(users).find(u => u.username === username);
+
+  if (!user || !user.security) {
+    setMessage("loginMessage", "กรุณากรอก Username ที่สมัครไว้ก่อน", "error");
+    return;
+  }
+
+  forgotPasswordUser = user;
+  document.getElementById("forgotPasswordQuestion").textContent = user.security.q1;
+  document.getElementById("forgotPasswordAnswer").value = "";
+  setMessage("forgotPasswordMessage", "กรุณาตอบคำถาม", "");
+  showScreen("forgotpassword");
+}
+
+function verifyForgotPassword() {
+  const answer = document.getElementById("forgotPasswordAnswer").value.trim().toLowerCase();
+  if (answer === forgotPasswordUser.security.a1) {
+    document.getElementById("newPassword").value = "";
+    document.getElementById("confirmNewPassword").value = "";
+    setMessage("resetPasswordMessage", "ยืนยันตัวตนสำเร็จ กรุณาตั้งรหัสผ่านใหม่", "success");
+    showScreen("resetpassword");
+  } else {
+    setMessage("forgotPasswordMessage", "คำตอบไม่ถูกต้อง", "error");
+  }
+}
+
+async function saveNewPassword() {
+  const newPassword = document.getElementById("newPassword").value;
+  const confirmPassword = document.getElementById("confirmNewPassword").value;
+
+  if (newPassword.length < 6) {
+    setMessage("resetPasswordMessage", "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร", "error");
+    return;
+  }
+  if (newPassword !== confirmPassword) {
+    setMessage("resetPasswordMessage", "รหัสผ่านทั้งสองครั้งไม่ตรงกัน", "error");
+    return;
+  }
+
+  forgotPasswordUser.passwordHash = newPassword;
+  const users = getUsers();
+  users[forgotPasswordUser.lineUserId] = forgotPasswordUser;
+  saveUsers(users);
+
+  setMessage("loginMessage", "เปลี่ยนรหัสผ่านสำเร็จ กรุณาเข้าสู่ระบบใหม่", "success");
+  showScreen("login");
 }
 
 function updateMenu() {
@@ -698,8 +769,6 @@ function logout() {
 document.addEventListener("DOMContentLoaded", () => {
   const theme = localStorage.getItem("smartbox_theme") || "theme-dark";
   document.body.className = theme;
-  document.querySelector("#forgot .link")?.addEventListener("click", showForgot);
-  document.querySelector("#changepin .link")?.addEventListener("click", showForgot);
   initLiff();
 });
 </script>
