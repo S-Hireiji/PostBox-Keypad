@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Box — ระบบกล่องพัสดุ</title>
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<style>
+:root{
+  --bg:#0f172a; --card:#1e293b; --text:#e2e8f0; --muted:#94a3b8;
+  --line:#334155; --primary:#2563eb; --primary-text:#fff;
+  --success:#166534; --success-text:#dcfce7; --danger:#7f1d1d; --danger-text:#fecaca;
+}
+body.theme-light{--bg:#f1f5f9; --card:#ffffff; --text:#0f172a; --muted:#64748b; --line:#cbd5e1; --primary:#2563eb; --primary-text:#fff; --success:#15803d; --success-text:#dcfce7; --danger:#b91c1c; --danger-text:#fee2e2}
+body.theme-blue{--bg:#0c4a6e; --card:#075985; --text:#e0f2fe; --muted:#bae6fd; --line:#0ea5e9; --primary:#0284c7; --primary-text:#fff; --success:#15803d; --success-text:#dcfce7; --danger:#b91c1c; --danger-text:#fee2e2}
+body.theme-purple{--bg:#2e1065; --card:#4c1d95; --text:#ede9fe; --muted:#c4b5fd; --line:#7c3aed; --primary:#7c3aed; --primary-text:#fff; --success:#15803d; --success-text:#dcfce7; --danger:#b91c1c; --danger-text:#fee2e2}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:"Segoe UI",Tahoma,sans-serif;background:var(--bg);color:var(--text);display:flex;align-items:center;justify-content:center;padding:16px;transition:background .3s,color .3s}
+.card{width:100%;max-width:400px;background:var(--card);border-radius:20px;padding:22px 18px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+h1{font-size:20px;margin:0 0 6px;text-align:center}
+h2{font-size:17px;margin:0 0 14px;text-align:center}
+p{margin:0 0 14px;text-align:center;color:var(--muted);font-size:14px}
+.screen{display:none}.screen.active{display:block}
+.field{margin-bottom:12px}
+label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}
+input,select{width:100%;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text);padding:0 12px;font-size:15px}
+.code{display:flex;justify-content:center;gap:9px;margin-bottom:16px}
+.digit{width:44px;height:54px;border-radius:12px;background:var(--bg);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:bold}
+.digit.filled{border-color:var(--primary);color:var(--primary)}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+button{height:48px;border:none;border-radius:13px;font-size:17px;font-weight:bold;cursor:pointer;background:var(--line);color:var(--text);transition:transform .08s,background .15s}
+button:active{transform:scale(.95)}
+.primary{background:var(--primary);color:var(--primary-text)}
+.success{background:var(--success);color:var(--success-text)}
+.danger{background:var(--danger);color:var(--danger-text)}
+.full{width:100%;margin-top:9px}
+.link{background:transparent;color:var(--primary);font-size:14px;height:36px;text-decoration:underline}
+.message{margin-top:12px;min-height:40px;padding:10px;border-radius:12px;background:var(--bg);text-align:center;font-size:13px;color:var(--muted)}
+.message.success{color:var(--success-text);background:rgba(22,101,52,.25)}
+.message.error{color:var(--danger-text);background:rgba(127,29,29,.25)}
+.weather{display:flex;gap:10px;margin-bottom:14px}
+.weather .box{flex:1}
+.box{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:12px}
+.label{font-size:11px;color:var(--muted);margin-bottom:3px}
+.value{font-size:16px;font-weight:bold}
+.greeting{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center;font-size:14px;margin-bottom:14px;color:var(--muted)}
+.menu{display:grid;gap:9px}
+.menu button{height:56px;font-size:16px}
+.theme-row{display:flex;gap:8px;margin-top:12px}
+.theme-row button{flex:1;height:38px;font-size:12px}
+.small{font-size:11px;color:var(--muted);text-align:center;margin-top:12px}
+</style>
+</head>
+<body class="theme-dark">
+<div class="card">
+
+  <div id="loading" class="screen active">
+    <h1>Smart Box</h1>
+    <p>กำลังเชื่อมต่อ LINE...</p>
+    <div class="message">โปรดรอสักครู่</div>
+  </div>
+
+  <div id="welcome" class="screen">
+    <h1>ยินดีต้อนรับสู่ Smart Box</h1>
+    <p>ระบบกล่องรับพัสดุอัจฉริยะ</p>
+    <button class="primary full" onclick="showScreen('register')">สมัครใช้งาน</button>
+    <button class="full" onclick="showScreen('login')">เข้าสู่ระบบ</button>
+    <div class="message">โปรดสมัครใช้งานก่อนตั้งรหัส PIN</div>
+  </div>
+
+  <div id="register" class="screen">
+    <h1>ลงทะเบียนผู้ใช้</h1>
+    <p>กรอกข้อมูลเพื่อยืนยันตัวตน</p>
+    <div class="field"><label>ชื่อเล่น</label><input id="regNickname" placeholder="เช่น บอส"></div>
+    <div class="field"><label>อายุ</label><input id="regAge" type="number" min="1" max="120" placeholder="เช่น 20"></div>
+    <div class="field"><label>วันเกิด</label><input id="regBirthdate" type="date"></div>
+    <div class="field"><label>เบอร์โทรศัพท์</label><input id="regPhone" type="tel" placeholder="เช่น 0812345678"></div>
+    <div class="field"><label>ชื่อผู้ใช้ (Username)</label><input id="regUsername" placeholder="ตั้งชื่อผู้ใช้"></div>
+    <div class="field"><label>รหัสผ่าน (Password)</label><input id="regPassword" type="password" placeholder="อย่างน้อย 6 ตัวอักษร"></div>
+    <button class="primary full" onclick="registerUser()">สมัครใช้งาน</button>
+    <button class="link full" onclick="showScreen('welcome')">กลับหน้าแรก</button>
+    <div class="message" id="registerMessage">กรุณากรอกข้อมูลให้ครบ</div>
+  </div>
+
+  <div id="security" class="screen">
+    <h1>ตั้งคำถามกู้คืน PIN</h1>
+    <p>ใช้ยืนยันตัวตนเมื่อลืมรหัส PIN</p>
+    <div class="field"><label>คำถามที่ 1</label>
+      <select id="q1">
+        <option>ชื่อแรกของสัตว์เลี้ยงคืออะไร?</option>
+        <option>ชื่อเมืองที่คุณเกิดคืออะไร?</option>
+        <option>อาหารที่คุณชอบที่สุดคืออะไร?</option>
+        <option>ชื่อครูประจำชั้นคนแรกคืออะไร?</option>
+      </select>
+    </div>
+    <div class="field"><label>คำตอบที่ 1</label><input id="a1" placeholder="คำตอบ"></div>
+    <div class="field"><label>คำถามที่ 2</label>
+      <select id="q2">
+        <option>ชื่อเพื่อนสนิทคนแรกคืออะไร?</option>
+        <option>ชื่อโรงเรียนประถมคืออะไร?</option>
+        <option>สีที่คุณชอบคืออะไร?</option>
+        <option>ชื่อตัวละครที่คุณชอบคืออะไร?</option>
+      </select>
+    </div>
+    <div class="field"><label>คำตอบที่ 2</label><input id="a2" placeholder="คำตอบ"></div>
+    <button class="primary full" onclick="saveSecurity()">บันทึกคำถาม</button>
+    <div class="message" id="securityMessage">กรุณาตอบคำถามให้ครบ</div>
+  </div>
+
+  <div id="setpin" class="screen">
+    <h1>ตั้งรหัส PIN</h1>
+    <p>ตั้งรหัส 4 หลักสำหรับปลดล็อกกล่อง</p>
+    <div class="code">
+      <div class="digit" id="s1"></div><div class="digit" id="s2"></div>
+      <div class="digit" id="s3"></div><div class="digit" id="s4"></div>
+    </div>
+    <div class="keypad">
+      <button onclick="pinInput('1')">1</button><button onclick="pinInput('2')">2</button><button onclick="pinInput('3')">3</button>
+      <button onclick="pinInput('4')">4</button><button onclick="pinInput('5')">5</button><button onclick="pinInput('6')">6</button>
+      <button onclick="pinInput('7')">7</button><button onclick="pinInput('8')">8</button><button onclick="pinInput('9')">9</button>
+      <button class="danger" onclick="pinClear()">C</button><button onclick="pinInput('0')">0</button><button class="primary" onclick="goConfirm()">ยืนยัน</button>
+    </div>
+    <div class="message" id="setpinMessage">ใส่รหัส 4 หลัก</div>
+  </div>
+
+  <div id="confirmpin" class="screen">
+    <h1>ยืนยันรหัส PIN</h1>
+    <p>ใส่รหัสเดิมอีกครั้ง</p>
+    <div class="code">
+      <div class="digit" id="c1"></div><div class="digit" id="c2"></div>
+      <div class="digit" id="c3"></div><div class="digit" id="c4"></div>
+    </div>
+    <div class="keypad">
+      <button onclick="confirmInput('1')">1</button><button onclick="confirmInput('2')">2</button><button onclick="confirmInput('3')">3</button>
+      <button onclick="confirmInput('4')">4</button><button onclick="confirmInput('5')">5</button><button onclick="confirmInput('6')">6</button>
+      <button onclick="confirmInput('7')">7</button><button onclick="confirmInput('8')">8</button><button onclick="confirmInput('9')">9</button>
+      <button class="danger" onclick="confirmClear()">C</button><button onclick="confirmInput('0')">0</button><button class="success" onclick="savePin()">บันทึก</button>
+    </div>
+    <div class="message" id="confirmpinMessage">ใส่รหัสยืนยัน 4 หลัก</div>
+  </div>
+
+  <div id="login" class="screen">
+    <h1>เข้าสู่ระบบ</h1>
+    <p>ใช้ Username และ Password ที่สมัครไว้</p>
+    <div class="field"><label>Username</label><input id="loginUsername"></div>
+    <div class="field"><label>Password</label><input id="loginPassword" type="password"></div>
+    <button class="primary full" onclick="loginUser()">เข้าสู่ระบบ</button>
+    <button class="link full" onclick="showScreen('welcome')">กลับหน้าแรก</button>
+    <div class="message" id="loginMessage">กรุณากรอกข้อมูล</div>
+  </div>
+
+  <div id="menu" class="screen">
+    <div class="greeting" id="greeting"></div>
+    <div class="weather">
+      <div class="box"><div class="label">วันที่</div><div class="value" id="dateText">-</div></div>
+      <div class="box"><div class="label">อุณหภูมิ</div><div class="value" id="temperature">-</div></div>
+    </div>
+    <h2>เมนูหลัก</h2>
+    <div class="menu">
+      <button class="primary" onclick="showScreen('unlock')">ปลดล็อกกล่อง</button>
+      <button onclick="showScreen('parcel')">เช็คพัสดุ</button>
+      <button onclick="showScreen('boxstatus')">สถานะกล่อง</button>
+      <button onclick="showScreen('changepin')">เปลี่ยนรหัส PIN</button>
+      <button onclick="showScreen('settings')">ตั้งค่าธีม</button>
+      <button class="danger" onclick="logout()">ออกจากระบบ</button>
+    </div>
+  </div>
+
+  <div id="unlock" class="screen">
+    <h1>ปลดล็อกกล่อง</h1>
+    <p>ใส่ PIN 4 หลัก</p>
+    <div class="code">
+      <div class="digit" id="u1"></div><div class="digit" id="u2"></div>
+      <div class="digit" id="u3"></div><div class="digit" id="u4"></div>
+    </div>
+    <div class="keypad">
+      <button onclick="unlockInput('1')">1</button><button onclick="unlockInput('2')">2</button><button onclick="unlockInput('3')">3</button>
+      <button onclick="unlockInput('4')">4</button><button onclick="unlockInput('5')">5</button><button onclick="unlockInput('6')">6</button>
+      <button onclick="unlockInput('7')">7</button><button onclick="unlockInput('8')">8</button><button onclick="unlockInput('9')">9</button>
+      <button class="danger" onclick="unlockClear()">C</button><button onclick="unlockInput('0')">0</button><button class="success" onclick="unlockBox()">ปลดล็อก</button>
+    </div>
+    <button class="link full" onclick="showScreen('forgot')">ลืมรหัส PIN?</button>
+    <button class="full" onclick="showScreen('menu')">กลับเมนู</button>
+    <div class="message" id="unlockMessage">ยังไม่ได้ปลดล็อก</div>
+  </div>
+
+  <div id="forgot" class="screen">
+    <h1>กู้คืนรหัส PIN</h1>
+    <p id="forgotQuestion">-</p>
+    <div class="field"><label>คำตอบ</label><input id="forgotAnswer"></div>
+    <button class="primary full" onclick="verifySecurity()">ยืนยันตัวตน</button>
+    <button class="full" onclick="showScreen('unlock')">กลับ</button>
+    <div class="message" id="forgotMessage">กรุณาตอบคำถาม</div>
+  </div>
+
+  <div id="resetpin" class="screen">
+    <h1>ตั้งรหัส PIN ใหม่</h1>
+    <p>คุณยืนยันตัวตนสำเร็จแล้ว</p>
+    <div class="code">
+      <div class="digit" id="r1"></div><div class="digit" id="r2"></div>
+      <div class="digit" id="r3"></div><div class="digit" id="r4"></div>
+    </div>
+    <div class="keypad">
+      <button onclick="resetInput('1')">1</button><button onclick="resetInput('2')">2</button><button onclick="resetInput('3')">3</button>
+      <button onclick="resetInput('4')">4</button><button onclick="resetInput('5')">5</button><button onclick="resetInput('6')">6</button>
+      <button onclick="resetInput('7')">7</button><button onclick="resetInput('8')">8</button><button onclick="resetInput('9')">9</button>
+      <button class="danger" onclick="resetClear()">C</button><button onclick="resetInput('0')">0</button><button class="success" onclick="saveResetPin()">บันทึก</button>
+    </div>
+    <div class="message" id="resetpinMessage">ใส่ PIN ใหม่ 4 หลัก</div>
+  </div>
+
+  <div id="parcel" class="screen">
+    <h1>เช็คพัสดุ</h1>
+    <p>ข้อมูลจากเซนเซอร์ AB072</p>
+    <div class="box"><div class="label">สถานะพัสดุ</div><div class="value" id="parcelStatus">ไม่มีพัสดุ</div></div>
+    <button class="primary full" onclick="refreshParcel()">รีเฟรช</button>
+    <button class="full" onclick="showScreen('menu')">กลับเมนู</button>
+    <div class="message" id="parcelMessage">สถานะปัจจุบัน</div>
+  </div>
+
+  <div id="boxstatus" class="screen">
+    <h1>สถานะกล่อง</h1>
+    <p>ข้อมูลจากระบบ</p>
+    <div class="box"><div class="label">สถานะกล่อง</div><div class="value" id="boxStatus">ล็อกอยู่</div></div>
+    <div class="box" style="margin-top:10px"><div class="label">อัปเดตล่าสุด</div><div class="value" id="lastUpdate">-</div></div>
+    <button class="primary full" onclick="refreshBox()">รีเฟรช</button>
+    <button class="full" onclick="showScreen('menu')">กลับเมนู</button>
+    <div class="message" id="boxMessage">สถานะปัจจุบัน</div>
+  </div>
+
+  <div id="changepin" class="screen">
+    <h1>เปลี่ยนรหัส PIN</h1>
+    <p>กรุณาใส่รหัสเดิมก่อน</p>
+    <div class="code">
+      <div class="digit" id="o1"></div><div class="digit" id="o2"></div>
+      <div class="digit" id="o3"></div><div class="digit" id="o4"></div>
+    </div>
+    <div class="keypad">
+      <button onclick="oldInput('1')">1</button><button onclick="oldInput('2')">2</button><button onclick="oldInput('3')">3</button>
+      <button onclick="oldInput('4')">4</button><button onclick="oldInput('5')">5</button><button onclick="oldInput('6')">6</button>
+      <button onclick="oldInput('7')">7</button><button onclick="oldInput('8')">8</button><button onclick="oldInput('9')">9</button>
+      <button class="danger" onclick="oldClear()">C</button><button onclick="oldInput('0')">0</button><button class="primary" onclick="verifyOldPin()">ยืนยัน</button>
+    </div>
+    <button class="link full" onclick="showScreen('forgot')">ลืมรหัส PIN?</button>
+    <button class="full" onclick="showScreen('menu')">กลับเมนู</button>
+    <div class="message" id="changepinMessage">ใส่รหัสเดิม 4 หลัก</div>
+  </div>
+
+  <div id="newpin" class="screen">
+    <h1>ตั้งรหัสใหม่</h1>
+    <p>ยืนยันรหัสเดิมสำเร็จ</p>
+    <div class="code">
+      <div class="digit" id="n1"></div><div class="digit" id="n2"></div>
+      <div class="digit" id="n3"></div><div class="digit" id="n4"></div>
+    </div>
+    <div class="keypad">
+      <button onclick="newInput('1')">1</button><button onclick="newInput('2')">2</button><button onclick="newInput('3')">3</button>
+      <button onclick="newInput('4')">4</button><button onclick="newInput('5')">5</button><button onclick="newInput('6')">6</button>
+      <button onclick="newInput('7')">7</button><button onclick="newInput('8')">8</button><button onclick="newInput('9')">9</button>
+      <button class="danger" onclick="newClear()">C</button><button onclick="newInput('0')">0</button><button class="success" onclick="saveNewPin()">บันทึก</button>
+    </div>
+    <div class="message" id="newpinMessage">ใส่ PIN ใหม่ 4 หลัก</div>
+  </div>
+
+  <div id="settings" class="screen">
+    <h1>ตั้งค่าธีม</h1>
+    <p>เลือกโทนสีที่ต้องการ</p>
+    <div class="theme-row">
+      <button onclick="setTheme('theme-dark')">ดำ</button>
+      <button onclick="setTheme('theme-light')">ขาว</button>
+      <button onclick="setTheme('theme-blue')">ฟ้า</button>
+      <button onclick="setTheme('theme-purple')">ม่วง</button>
+    </div>
+    <button class="full" onclick="showScreen('menu')">กลับเมนู</button>
+    <div class="message">ธีมจะถูกจำไว้ในเบราว์เซอร์นี้</div>
+  </div>
+
+  <div class="small">LIFF Demo — ข้อมูลถูกเก็บในเบราว์เซอร์เท่านั้น</div>
+</div>
+
+<script>
+const GREETINGS = [
+"วันนี้เป็นวันที่ดี อย่าลืมรับพัสดุ!",
+"สวัสดี! กล่องพัสดุของคุณพร้อมใช้งาน",
+"อย่าลืมตรวจสอบพัสดุก่อนออกจากบ้าน",
+"วันนี้มีพัสดุมาถึงหรือยัง? ลองเช็คดูได้เลย",
+"ขอให้วันนี้ราบรื่น และพัสดุถึงปลอดภัย",
+"Smart Box พร้อมช่วยดูแลพัสดุของคุณ",
+"อย่าลืมเก็บพัสดุจากกล่องนะ!",
+"หวังว่าวันนี้จะมีข่าวดีจากพัสดุของคุณ",
+"ตรวจสถานะกล่องได้ทุกเมื่อจากเมนูหลัก",
+"ระบบพร้อมช่วยคุณเปิดกล่องอย่างปลอดภัย",
+"อย่าลืมรหัส PIN นะ แต่ถ้าลืมก็กู้คืนได้",
+"ขอบคุณที่ใช้ Smart Box ของเรา",
+"พัสดุปลอดภัย เมื่อคุณปลดล็อกด้วยรหัสของตัวเอง",
+"วันนี้อากาศเป็นอย่างไร? อย่าลืมดูก่อนออกไปรับพัสดุ",
+"Smart Box ช่วยให้การรับพัสดุง่ายขึ้น",
+"หากมีพัสดุเข้า ระบบจะแจ้งเตือนคุณผ่าน LINE",
+"เช็คพัสดุก่อนออกจากบ้านเพื่อความสบายใจ",
+"ขอให้วันนี้เต็มไปด้วยพัสดุดี ๆ",
+"ระบบกำลังพร้อมช่วยคุณดูแลพัสดุ",
+"อย่าลืมรับพัสดุก่อนกล่องเต็มนะ!"
+];
+
+let currentUser = null;
+let setupPin = "", confirmPinValue = "", unlockPin = "", oldPin = "", newPin = "", resetPin = "";
+
+async function initLiff() {
+  try {
+    await liff.init({ liffId: "YOUR_LIFF_ID" });
+    if (!liff.isLoggedIn()) { liff.login(); return; }
+    const profile = await liff.getProfile();
+    currentUser = {
+      lineUserId: profile.userId,
+      displayName: profile.displayName || "ผู้ใช้ LINE",
+      username: "",
+      nickname: "",
+      age: "",
+      birthdate: "",
+      phone: "",
+      passwordHash: "",
+      security: null,
+      pinHash: "",
+      hasParcel: false,
+      boxLocked: true
+    };
+    document.getElementById("loading").classList.remove("active");
+    showScreen("welcome");
+  } catch (error) {
+    document.getElementById("loading").classList.remove("active");
+    showScreen("welcome");
+  }
+}
+
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  if (id === "menu") updateMenu();
+}
+
+function setMessage(id, text, type) {
+  const message = document.getElementById(id);
+  message.textContent = text;
+  message.className = "message";
+  if (type) message.classList.add(type);
+}
+
+function getUsers() {
+  return JSON.parse(localStorage.getItem("smartbox_users") || "{}");
+}
+
+function saveUsers(users) {
+  localStorage.setItem("smartbox_users", JSON.stringify(users));
+}
+
+function saveCurrentUser() {
+  const users = getUsers();
+  users[currentUser.lineUserId] = currentUser;
+  saveUsers(users);
+}
+
+async function hashText(text) {
+  const data = new TextEncoder().encode(text);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+function registerUser() {
+  const nickname = document.getElementById("regNickname").value.trim();
+  const age = document.getElementById("regAge").value;
+  const birthdate = document.getElementById("regBirthdate").value;
+  const phone = document.getElementById("regPhone").value.trim();
+  const username = document.getElementById("regUsername").value.trim();
+  const password = document.getElementById("regPassword").value;
+
+  if (!nickname || !age || !birthdate || !phone || !username || password.length < 6) {
+    setMessage("registerMessage", "กรุณากรอกข้อมูลให้ครบ และรหัสผ่านอย่างน้อย 6 ตัวอักษร", "error");
+    return;
+  }
+
+  const users = getUsers();
+  if (users[username]) {
+    setMessage("registerMessage", "Username นี้ถูกใช้แล้ว", "error");
+    return;
+  }
+
+  currentUser.username = username;
+  currentUser.nickname = nickname;
+  currentUser.age = age;
+  currentUser.birthdate = birthdate;
+  currentUser.phone = phone;
+  currentUser.passwordHash = password;
+  saveCurrentUser();
+
+  document.getElementById("q1").value = "";
+  document.getElementById("a1").value = "";
+  document.getElementById("q2").value = "";
+  document.getElementById("a2").value = "";
+  showScreen("security");
+  setMessage("securityMessage", "สมัครสำเร็จ กรุณาตั้งคำถามกู้คืน PIN", "success");
+}
+
+function saveSecurity() {
+  const q1 = document.getElementById("q1").value;
+  const a1 = document.getElementById("a1").value.trim();
+  const q2 = document.getElementById("q2").value;
+  const a2 = document.getElementById("a2").value.trim();
+
+  if (!a1 || !a2) {
+    setMessage("securityMessage", "กรุณากรอกคำตอบให้ครบ", "error");
+    return;
+  }
+
+  currentUser.security = { q1, a1: a1.toLowerCase(), q2, a2: a2.toLowerCase() };
+  saveCurrentUser();
+
+  setupPin = "";
+  renderCode("s", setupPin);
+  showScreen("setpin");
+  setMessage("setpinMessage", "บันทึกคำถามสำเร็จ กรุณาตั้ง PIN", "success");
+}
+
+function renderCode(prefix, value) {
+  for (let i = 1; i <= 4; i++) {
+    const box = document.getElementById(prefix + i);
+    const digit = value[i - 1] || "";
+    box.textContent = digit;
+    box.classList.toggle("filled", digit !== "");
+  }
+}
+
+function pinInput(value) {
+  if (setupPin.length >= 4) return;
+  setupPin += value;
+  renderCode("s", setupPin);
+  setMessage("setpinMessage", "ใส่รหัสแล้ว " + setupPin.length + "/4 หลัก", "");
+}
+
+function pinClear() {
+  setupPin = "";
+  renderCode("s", setupPin);
+  setMessage("setpinMessage", "ล้างรหัสแล้ว", "");
+}
+
+function goConfirm() {
+  if (setupPin.length !== 4) {
+    setMessage("setpinMessage", "กรุณาใส่รหัสให้ครบ 4 หลัก", "error");
+    return;
+  }
+  confirmPinValue = "";
+  renderCode("c", confirmPinValue);
+  showScreen("confirmpin");
+  setMessage("confirmpinMessage", "ใส่รหัสยืนยัน 4 หลัก", "");
+}
+
+function confirmInput(value) {
+  if (confirmPinValue.length >= 4) return;
+  confirmPinValue += value;
+  renderCode("c", confirmPinValue);
+  setMessage("confirmpinMessage", "ใส่รหัสยืนยันแล้ว " + confirmPinValue.length + "/4 หลัก", "");
+}
+
+function confirmClear() {
+  confirmPinValue = "";
+  renderCode("c", confirmPinValue);
+  setMessage("confirmpinMessage", "ล้างรหัสยืนยันแล้ว", "");
+}
+
+async function savePin() {
+  if (confirmPinValue.length !== 4) {
+    setMessage("confirmpinMessage", "กรุณาใส่รหัสยืนยันให้ครบ 4 หลัก", "error");
+    return;
+  }
+  if (setupPin !== confirmPinValue) {
+    setMessage("confirmpinMessage", "รหัสทั้งสองครั้งไม่ตรงกัน", "error");
+    return;
+  }
+  currentUser.pinHash = await hashText(setupPin);
+  saveCurrentUser();
+  setupPin = ""; confirmPinValue = "";
+  renderCode("s", ""); renderCode("c", "");
+  showScreen("login");
+  setMessage("loginMessage", "ตั้ง PIN สำเร็จ กรุณาเข้าสู่ระบบ", "success");
+}
+
+async function loginUser() {
+  const username = document.getElementById("loginUsername").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  const users = getUsers();
+  const user = Object.values(users).find(u => u.username === username);
+
+  if (!user || user.passwordHash !== password) {
+    setMessage("loginMessage", "Username หรือ Password ไม่ถูกต้อง", "error");
+    return;
+  }
+
+  if (!user.pinHash) {
+    currentUser = user;
+    saveCurrentUser();
+    setupPin = "";
+    renderCode("s", setupPin);
+    showScreen("setpin");
+    setMessage("setpinMessage", "กรุณาตั้ง PIN ก่อนใช้งาน", "error");
+    return;
+  }
+
+  currentUser = user;
+  saveCurrentUser();
+  showScreen("menu");
+}
+
+function updateMenu() {
+  document.getElementById("greeting").textContent = "สวัสดี " + (currentUser.nickname || currentUser.displayName) + "! " + GREETINGS[Math.floor(Math.random() * GREETINGS.length)];
+  document.getElementById("dateText").textContent = new Date().toLocaleDateString("th-TH", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  loadWeather();
+}
+
+async function loadWeather() {
+  document.getElementById("temperature").textContent = "กำลังโหลด...";
+  try {
+    const position = await new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+    });
+    const lat = position.coords.latitude;
+    const lon = position.coords.longitude;
+    const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+    const data = await response.json();
+    document.getElementById("temperature").textContent = Math.round(data.current_weather.temperature) + "°C";
+  } catch (error) {
+    try {
+      const response = await fetch("https://api.open-meteo.com/v1/forecast?latitude=13.7563&longitude=100.5018&current_weather=true");
+      const data = await response.json();
+      document.getElementById("temperature").textContent = Math.round(data.current_weather.temperature) + "°C";
+    } catch (e) {
+      document.getElementById("temperature").textContent = "ไม่ทราบ";
+    }
+  }
+}
+
+function unlockInput(value) {
+  if (unlockPin.length >= 4) return;
+  unlockPin += value;
+  renderCode("u", unlockPin);
+  setMessage("unlockMessage", "ใส่รหัสแล้ว " + unlockPin.length + "/4 หลัก", "");
+}
+
+function unlockClear() {
+  unlockPin = "";
+  renderCode("u", unlockPin);
+  setMessage("unlockMessage", "ล้างรหัสแล้ว", "");
+}
+
+async function unlockBox() {
+  if (unlockPin.length !== 4) {
+    setMessage("unlockMessage", "กรุณาใส่รหัสให้ครบ 4 หลัก", "error");
+    return;
+  }
+  const enteredHash = await hashText(unlockPin);
+  if (enteredHash === currentUser.pinHash) {
+    currentUser.boxLocked = false;
+    saveCurrentUser();
+    setMessage("unlockMessage", "ปลดล็อกสำเร็จ กำลังเปิดกล่อง (โหมดทดสอบ)", "success");
+    unlockPin = "";
+    renderCode("u", "");
+    setTimeout(() => {
+      currentUser.boxLocked = true;
+      saveCurrentUser();
+      setMessage("unlockMessage", "กล่องถูกล็อกอีกครั้งแล้ว", "");
+    }, 5000);
+  } else {
+    setMessage("unlockMessage", "รหัสไม่ถูกต้อง", "error");
+    unlockPin = "";
+    renderCode("u", "");
+  }
+}
+
+function showForgot() {
+  document.getElementById("forgotQuestion").textContent = currentUser.security.q1;
+  document.getElementById("forgotAnswer").value = "";
+  setMessage("forgotMessage", "กรุณาตอบคำถาม", "");
+  showScreen("forgot");
+}
+
+function verifySecurity() {
+  const answer = document.getElementById("forgotAnswer").value.trim().toLowerCase();
+  if (answer === currentUser.security.a1) {
+    resetPin = "";
+    renderCode("r", resetPin);
+    showScreen("resetpin");
+    setMessage("resetpinMessage", "ยืนยันตัวตนสำเร็จ กรุณาตั้ง PIN ใหม่", "success");
+  } else {
+    setMessage("forgotMessage", "คำตอบไม่ถูกต้อง", "error");
+  }
+}
+
+function resetInput(value) {
+  if (resetPin.length >= 4) return;
+  resetPin += value;
+  renderCode("r", resetPin);
+  setMessage("resetpinMessage", "ใส่รหัสใหม่แล้ว " + resetPin.length + "/4 หลัก", "");
+}
+
+function resetClear() {
+  resetPin = "";
+  renderCode("r", resetPin);
+  setMessage("resetpinMessage", "ล้างรหัสใหม่แล้ว", "");
+}
+
+async function saveResetPin() {
+  if (resetPin.length !== 4) {
+    setMessage("resetpinMessage", "กรุณาใส่รหัสให้ครบ 4 หลัก", "error");
+    return;
+  }
+  currentUser.pinHash = await hashText(resetPin);
+  saveCurrentUser();
+  resetPin = "";
+  renderCode("r", "");
+  showScreen("menu");
+}
+
+function refreshParcel() {
+  document.getElementById("parcelStatus").textContent = currentUser.hasParcel ? "มีพัสดุอยู่" : "ไม่มีพัสดุ";
+  setMessage("parcelMessage", "รีเฟรชสถานะแล้ว", "success");
+}
+
+function refreshBox() {
+  document.getElementById("boxStatus").textContent = currentUser.boxLocked ? "ล็อกอยู่" : "เปิดอยู่";
+  document.getElementById("lastUpdate").textContent = new Date().toLocaleString("th-TH");
+  setMessage("boxMessage", "รีเฟรชสถานะแล้ว", "success");
+}
+
+function oldInput(value) {
+  if (oldPin.length >= 4) return;
+  oldPin += value;
+  renderCode("o", oldPin);
+  setMessage("changepinMessage", "ใส่รหัสเดิมแล้ว " + oldPin.length + "/4 หลัก", "");
+}
+
+function oldClear() {
+  oldPin = "";
+  renderCode("o", oldPin);
+  setMessage("changepinMessage", "ล้างรหัสเดิมแล้ว", "");
+}
+
+async function verifyOldPin() {
+  if (oldPin.length !== 4) {
+    setMessage("changepinMessage", "กรุณาใส่รหัสให้ครบ 4 หลัก", "error");
+    return;
+  }
+  const enteredHash = await hashText(oldPin);
+  if (enteredHash === currentUser.pinHash) {
+    newPin = "";
+    renderCode("n", newPin);
+    showScreen("newpin");
+    setMessage("newpinMessage", "ยืนยันรหัสเดิมสำเร็จ กรุณาตั้งรหัสใหม่", "success");
+  } else {
+    setMessage("changepinMessage", "รหัสเดิมไม่ถูกต้อง", "error");
+    oldPin = "";
+    renderCode("o", "");
+  }
+}
+
+function newInput(value) {
+  if (newPin.length >= 4) return;
+  newPin += value;
+  renderCode("n", newPin);
+  setMessage("newpinMessage", "ใส่รหัสใหม่แล้ว " + newPin.length + "/4 หลัก", "");
+}
+
+function newClear() {
+  newPin = "";
+  renderCode("n", newPin);
+  setMessage("newpinMessage", "ล้างรหัสใหม่แล้ว", "");
+}
+
+async function saveNewPin() {
+  if (newPin.length !== 4) {
+    setMessage("newpinMessage", "กรุณาใส่รหัสให้ครบ 4 หลัก", "error");
+    return;
+  }
+  currentUser.pinHash = await hashText(newPin);
+  saveCurrentUser();
+  newPin = "";
+  renderCode("n", "");
+  showScreen("menu");
+}
+
+function setTheme(theme) {
+  document.body.className = theme;
+  localStorage.setItem("smartbox_theme", theme);
+}
+
+function logout() {
+  currentUser = null;
+  showScreen("welcome");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const theme = localStorage.getItem("smartbox_theme") || "theme-dark";
+  document.body.className = theme;
+  document.querySelector("#forgot .link")?.addEventListener("click", showForgot);
+  document.querySelector("#changepin .link")?.addEventListener("click", showForgot);
+  initLiff();
+});
+</script>
+</body>
+</html>
