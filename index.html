@@ -365,35 +365,116 @@ else if(s==='aurora')for(let i=0;i<3;i++){x.beginPath();x.moveTo(0,V);for(let px
 else for(let i=0;i<8;i++){x.beginPath();x.arc(W/2,V/2,60+i*40+Math.sin(t+i)*10,0,6.283);x.stroke()}
 t+=.02;requestAnimationFrame(f)})()}
 
-/* ---------- AI chat (Firebase AI Logic / Gemini) ---------- */
-// ถ้าแชทขึ้นว่าใช้ไม่ได้ ให้แก้ชื่อโมเดลตรงนี้ให้ตรงกับที่ Firebase Console แสดง (ระบบจะลองตัวถัดไปให้อัตโนมัติ)
-const AI_MODELS=['gemini-3.7-flash'];
-const AI_SYS='คุณคือ "น้องพิง" ผู้ช่วย AI น่ารักของระบบกล่องพัสดุ Postbox Ping คุยเล่นเป็นกันเอง ตอบสั้น 1-3 ประโยค ใช้ภาษาเดียวกับผู้ใช้ (ไทยเป็นหลัก) ใส่อีโมจิได้เล็กน้อย คุณคุยเล่นได้อย่างเดียว ไม่สามารถปลดล็อกกล่องหรือดูรหัส PIN ได้ ถ้าถูกขอให้ทำให้บอกให้ใช้เมนูในแอป และห้ามขอหรือรับรหัส PIN/รหัสผ่านจากผู้ใช้';
-const APPCHECK_KEY='6LeQrykuAAAAALNpdG7DfZlIal-Eo_0-9xx3-bLx';            // วาง reCAPTCHA site key ที่นี่ (ดูขั้นตอนในแชท/คู่มือ) ว่างไว้ = ไม่ใช้ App Check
-const APPCHECK_TYPE='enterprise'; // 'enterprise' หรือ 'v3' ให้ตรงกับชนิดของคีย์ที่สร้าง
-const FB_JS='https://www.gstatic.com/firebasejs/12.14.0/';
-let aiApp,aiMi=0,aiChat=null,aiHist=[],aiBusy=false;
-async function aiModel(name){
-if(!aiApp){const{initializeApp}=await import(FB_JS+'firebase-app.js'),{getAI,getGenerativeModel,GoogleAIBackend}=await import(FB_JS+'firebase-ai.js'),app=initializeApp(firebase.app().options,'ai');
-if(APPCHECK_KEY){const ac=await import(FB_JS+'firebase-app-check.js');if(location.hostname==='localhost')self.FIREBASE_APPCHECK_DEBUG_TOKEN=true;ac.initializeAppCheck(app,{provider:APPCHECK_TYPE==='v3'?new ac.ReCaptchaV3Provider(APPCHECK_KEY):new ac.ReCaptchaEnterpriseProvider(APPCHECK_KEY),isTokenAutoRefreshEnabled:true})}
-aiApp={ai:getAI(app,{backend:new GoogleAIBackend()}),gm:getGenerativeModel}}
-return aiApp.gm(aiApp.ai,{model:name,systemInstruction:AI_SYS})}
-async function aiAsk(text){
-for(;;){try{
-if(!aiChat)aiChat=(await aiModel(AI_MODELS[aiMi])).startChat({history:aiHist});
-const a=(await aiChat.sendMessage(text)).response.text();
-aiHist.push({role:'user',parts:[{text}]},{role:'model',parts:[{text:a}]});aiHist=aiHist.slice(-20);return a
-}catch(e){console.warn(AI_MODELS[aiMi],e);aiChat=null;if(++aiMi>=AI_MODELS.length){aiMi=0;throw e}}}}
+/* ---------- AI chat (Firebase AI Logic + App Check + Streaming) ---------- */
+// IMPORTANT: Put the reCAPTCHA Enterprise SITE KEY here (not the secret key).
+const AI_MODEL = 'gemini-3.5-flash-lite';
+const AI_SYS = 'คุณคือ "น้องพิง" ผู้ช่วย AI ของระบบกล่องพัสดุ Postbox Ping คุยเป็นกันเอง ตอบสั้น 1-3 ประโยค ใช้ภาษาเดียวกับผู้ใช้ (ไทยเป็นหลัก) คุณคุยเล่นและให้ข้อมูลทั่วไปได้ แต่ไม่สามารถสั่งปลดล็อกกล่องหรือดูรหัส PIN ได้ ห้ามขอหรือรับรหัส PIN/รหัสผ่านจากผู้ใช้';
+const APPCHECK_KEY = 'REPLACE_WITH_YOUR_RECAPTCHA_ENTERPRISE_SITE_KEY';
+const FB_JS = 'https://www.gstatic.com/firebasejs/12.14.0/';
+let aiSetupPromise = null;
+let aiChat = null;
+let aiBusy = false;
+
+async function getAIChat() {
+  if (!APPCHECK_KEY || APPCHECK_KEY.startsWith('REPLACE_')) {
+    throw new Error('APP_CHECK_SITE_KEY_MISSING: ใส่ reCAPTCHA Enterprise Site Key ใน APPCHECK_KEY ก่อน');
+  }
+
+  if (!aiSetupPromise) {
+    aiSetupPromise = (async () => {
+      const [appSdk, aiSdk, appCheckSdk] = await Promise.all([
+        import(FB_JS + 'firebase-app.js'),
+        import(FB_JS + 'firebase-ai.js'),
+        import(FB_JS + 'firebase-app-check.js')
+      ]);
+
+      const app = appSdk.initializeApp(firebase.app().options, 'postbox-ai');
+
+      // App Check is required for Firebase AI Logic in this project.
+      const appCheck = appCheckSdk.initializeAppCheck(app, {
+        provider: new appCheckSdk.ReCaptchaEnterpriseProvider(APPCHECK_KEY),
+        isTokenAutoRefreshEnabled: true
+      });
+
+      // Request a token now so App Check errors are surfaced before calling Gemini.
+      await appCheckSdk.getToken(appCheck);
+
+      const ai = aiSdk.getAI(app, {
+        backend: new aiSdk.GoogleAIBackend()
+      });
+      const model = aiSdk.getGenerativeModel(ai, {
+        model: AI_MODEL,
+        systemInstruction: AI_SYS,
+        generationConfig: { maxOutputTokens: 180 }
+      });
+      return model;
+    })();
+  }
+
+  const model = await aiSetupPromise;
+  if (!aiChat) aiChat = model.startChat({ history: [] });
+  return aiChat;
+}
+
+async function aiAsk(text, onUpdate) {
+  const chat = await getAIChat();
+  const result = await chat.sendMessageStream(text);
+  let answer = '';
+
+  for await (const chunk of result.stream) {
+    const part = chunk.text();
+    if (part) {
+      answer += part;
+      if (onUpdate) onUpdate(answer);
+    }
+  }
+
+  await result.response;
+  if (!answer.trim()) throw new Error('EMPTY_AI_RESPONSE');
+  return answer;
+}
+
 function chatAdd(t,who){const d=document.createElement('div');d.className='cm '+who;d.textContent=t;$('cmsgs').appendChild(d);$('cmsgs').scrollTop=1e9;return d}
 function chatToggle(){const w=$('cwin');w.classList.toggle('on');if(!w.classList.contains('on'))return;$('cin').placeholder=L('พิมพ์ข้อความ...','Type a message...');
 if(!$('cmsgs').children.length){chatAdd(L('สวัสดีค่ะ น้องพิงเองนะ 📮 มีอะไรอยากคุยเล่นไหม?',"Hi! I'm Ping 📮 Want to chat?"),'bot');
 $('chips').innerHTML=[['สวัสดี 👋','Hello 👋'],['เล่าเรื่องตลกหน่อย','Tell me a joke'],['วันนี้ทำอะไรดี?','What should I do today?']].map(c=>`<button onclick="chatSend(this.textContent)">${L(...c)}</button>`).join('')}}
+
 async function chatSend(t){
-if(aiBusy)return;const i=$('cin');t=(t||i.value).trim();if(!t)return;i.value='';$('chips').innerHTML='';
-chatAdd(t,'me');aiBusy=true;const b=chatAdd('','bot typing');b.innerHTML='<span></span><span></span><span></span>';
-try{const a=await aiAsk(t);b.className='cm bot';b.textContent=a.replace(/\*\*/g,'')}
-catch(e){b.className='cm bot';b.textContent=L('ขอโทษค่ะ ตอนนี้เชื่อมต่อ AI ไม่ได้ ลองใหม่อีกครั้งนะ (เช็กว่าเปิด Firebase AI Logic แล้ว)','Sorry, AI is unavailable. Check that Firebase AI Logic is enabled.')}
-aiBusy=false;$('cmsgs').scrollTop=1e9}
+  if(aiBusy)return;
+  const i=$('cin');
+  t=(t||i.value).trim();
+  if(!t)return;
+  i.value='';$('chips').innerHTML='';
+  chatAdd(t,'me');
+  aiBusy=true;
+  $('csend').disabled=true;
+  const b=chatAdd('','bot typing');
+  b.innerHTML='<span></span><span></span><span></span>';
+
+  try{
+    const answer=await aiAsk(t,partial=>{
+      b.className='cm bot';
+      b.textContent=partial.replace(/\*\*/g,'');
+      $('cmsgs').scrollTop=1e9;
+    });
+    b.className='cm bot';
+    b.textContent=answer.replace(/\*\*/g,'');
+  }catch(e){
+    console.error('[Firebase AI Logic] request failed', {
+      name:e?.name, code:e?.code, message:e?.message, error:e
+    });
+    const detail=[e?.code,e?.message].filter(Boolean).join(' — ').slice(0,220);
+    b.className='cm bot';
+    b.textContent=L(
+      'ขอโทษค่ะ เชื่อมต่อ AI ไม่สำเร็จ\nรหัส/รายละเอียด: '+(detail||'unknown error'),
+      'AI connection failed\nError: '+(detail||'unknown error')
+    );
+  }finally{
+    aiBusy=false;
+    $('csend').disabled=false;
+    $('cmsgs').scrollTop=1e9;
+  }
+}
 function chatInit(){$('cin').onkeydown=e=>{if(e.key==='Enter')chatSend()}}
 
 document.addEventListener('DOMContentLoaded',()=>{
