@@ -367,7 +367,7 @@ t+=.02;requestAnimationFrame(f)})()}
 
 /* ---------- AI chat (Firebase AI Logic / Gemini) ---------- */
 // ถ้าแชทขึ้นว่าใช้ไม่ได้ ให้แก้ชื่อโมเดลตรงนี้ให้ตรงกับที่ Firebase Console แสดง (ระบบจะลองตัวถัดไปให้อัตโนมัติ)
-const AI_MODELS=['gemini-2.5-flash'];
+const AI_MODELS=['gemini-3.7-flash'];
 const AI_SYS='คุณคือ "น้องพิง" ผู้ช่วย AI น่ารักของระบบกล่องพัสดุ Postbox Ping คุยเล่นเป็นกันเอง ตอบสั้น 1-3 ประโยค ใช้ภาษาเดียวกับผู้ใช้ (ไทยเป็นหลัก) ใส่อีโมจิได้เล็กน้อย คุณคุยเล่นได้อย่างเดียว ไม่สามารถปลดล็อกกล่องหรือดูรหัส PIN ได้ ถ้าถูกขอให้ทำให้บอกให้ใช้เมนูในแอป และห้ามขอหรือรับรหัส PIN/รหัสผ่านจากผู้ใช้';
 const APPCHECK_KEY='6LeQrykuAAAAALNpdG7DfZlIal-Eo_0-9xx3-bLx';            // วาง reCAPTCHA site key ที่นี่ (ดูขั้นตอนในแชท/คู่มือ) ว่างไว้ = ไม่ใช้ App Check
 const APPCHECK_TYPE='enterprise'; // 'enterprise' หรือ 'v3' ให้ตรงกับชนิดของคีย์ที่สร้าง
