@@ -389,7 +389,11 @@ async function getAIChat() {
         import(FB_JS + 'firebase-app-check.js')
       ]);
 
-      const app = appSdk.initializeApp(firebase.app().options, 'postbox-ai');
+      const app = appSdk.getApps().find(a => a.name === 'postbox-ai') || appSdk.initializeApp(firebase.app().options, 'postbox-ai');
+      // Separate SDK app must authenticate too if AI Logic requires Authentication.
+      const aiAuthSdk = await import(FB_JS + 'firebase-auth.js');
+      const aiAuth = aiAuthSdk.getAuth(app);
+      if (!aiAuth.currentUser) await aiAuthSdk.signInAnonymously(aiAuth);
 
       // App Check is required for Firebase AI Logic in this project.
       const appCheck = appCheckSdk.initializeAppCheck(app, {
@@ -461,6 +465,7 @@ async function chatSend(t){
     b.className='cm bot';
     b.textContent=answer.replace(/\*\*/g,'');
   }catch(e){
+    aiSetupPromise = null; aiChat = null;
     console.error('[Firebase AI Logic] request failed', {
       name:e?.name, code:e?.code, message:e?.message, error:e
     });
