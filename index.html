@@ -345,7 +345,7 @@ const c=w.weathercode;set(Math.round(w.temperature)+'°C',c<3?L('แดดออ
 /* ---------- LINE LIFF ---------- */
 async function init(){
 try{
-await Promise.race([liff.init({liffId:'2012709163-l8Pbt2Ad'}),new Promise((_,r)=>setTimeout(()=>r(Error('timeout')),5000))]);
+await Promise.race([liff.init({liffId:'2012766453-sMrmwYD6'}),new Promise((_,r)=>setTimeout(()=>r(Error('timeout')),5000))]);
 if(liff.isLoggedIn()){
 const p=await liff.getProfile(),s=await db.ref('users/'+p.userId).get(),u=s.exists()?s.val():{id:p.userId,avSrc:p.pictureUrl?'line':''};
 u.name=p.displayName||'User';u.pic=p.pictureUrl||'';
