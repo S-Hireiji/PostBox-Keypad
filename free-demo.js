@@ -10,7 +10,7 @@ init=async function(){try{
  demoUID=firebase.auth().currentUser.uid;
  let p=$('demoUid');if(!p){p=document.createElement('div');p.id='demoUid';p.style='font-size:11px;overflow-wrap:anywhere;padding:6px';$('card').prepend(p)}p.textContent='BROWSER_UID: '+demoUID;
  await db.ref('demoBox/state').get();
- await liff.init({liffId:'2012709163-l8Pbt2Ad'});
+ await liff.init({liffId:'2012766453-sMrmwYD6'});
  if(!liff.isLoggedIn()){show('welcome');msg('welcome','กรุณาเข้าสู่ระบบ LINE','');return;}
  const profile=await liff.getProfile(),snap=await db.ref('users/'+profile.userId).get(),u=snap.val()||{id:profile.userId,avSrc:profile.pictureUrl?'line':''};
  u.id=profile.userId;u.name=profile.displayName||'User';u.nick=u.nick||u.name;u.pic=profile.pictureUrl||'';
